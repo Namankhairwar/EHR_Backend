@@ -28,6 +28,7 @@ public class UserService {
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(dto.getRole())
+                .doctor(dto.getDoctor())
                 .build();
         User saved = userRepository.save(user);
         return mapToResponse(saved);

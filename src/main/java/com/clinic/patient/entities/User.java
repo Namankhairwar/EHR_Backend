@@ -1,6 +1,7 @@
 package com.clinic.patient.entities;
 
 import com.clinic.patient.models.Role;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -22,15 +23,29 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    @JsonBackReference
+    private Doctor doctor;  //many patients can have one doctor
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
+
     // ---- Constructors ----
     public User() {}
 
-    public User(Long id, String fullName, String email, String password, Role role) {
+    public User(Long id, String fullName, String email, String password, Role role, Doctor doctor) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.doctor = doctor;
     }
 
     // ---- Getters & Setters ----
@@ -60,6 +75,7 @@ public class User {
         private String email;
         private String password;
         private Role role;
+        private Doctor doctor;
 
         public Builder id(Long id) {
             this.id = id;
@@ -85,9 +101,13 @@ public class User {
             this.role = role;
             return this;
         }
+        public Builder doctor(Doctor doctor) {   // 👈 Setter for doctor
+            this.doctor = doctor;
+            return this;
+        }
 
         public User build() {
-            return new User(id, fullName, email, password, role);
+            return new User(id, fullName, email, password, role, doctor);
         }
     }
 }

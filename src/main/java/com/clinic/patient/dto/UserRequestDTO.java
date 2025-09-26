@@ -1,6 +1,7 @@
 package com.clinic.patient.dto;
 
 
+import com.clinic.patient.entities.Doctor;
 import com.clinic.patient.models.Role;
 
 
@@ -10,15 +11,17 @@ public class UserRequestDTO {
     private String email;
     private String password;
     private Role role;
+    private Doctor doctor;  // 👈 Added doctor field
 
     // ---- Constructors ----
     public UserRequestDTO() {}
 
-    public UserRequestDTO(String fullName, String email, String password, Role role) {
+    public UserRequestDTO(String fullName, String email, String password, Role role,Doctor doctor) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.doctor = doctor;
     }
 
     // ---- Getters & Setters ----
@@ -34,6 +37,9 @@ public class UserRequestDTO {
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
 
+    public Doctor getDoctor() { return doctor; }
+    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+
     // ---- Builder ----
     public static Builder builder() {
         return new Builder();
@@ -44,6 +50,7 @@ public class UserRequestDTO {
         private String email;
         private String password;
         private Role role;
+        private Doctor doctor;  // 👈 Added doctor field
 
         public Builder fullName(String fullName) {
             this.fullName = fullName;
@@ -64,9 +71,13 @@ public class UserRequestDTO {
             this.role = role;
             return this;
         }
+        public Builder doctor(Doctor doctor) {
+            this.doctor = doctor;
+            return this;
+        }
 
         public UserRequestDTO build() {
-            return new UserRequestDTO(fullName, email, password, role);
+            return new UserRequestDTO(fullName, email, password, role, doctor);
         }
     }
 }
