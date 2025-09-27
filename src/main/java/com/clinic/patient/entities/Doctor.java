@@ -13,9 +13,12 @@ public class Doctor {
     private Long doctorId;
 
     private String name;
+    private String age;
     private String specialization;
     private String email;
     private String phone;
+    private String experience;
+    private String gender;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -68,5 +71,23 @@ public class Doctor {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+    public String getAge() {
+        return age;
+    }
+    public void setAge(String age) {
+        this.age = age;
+    }
+    public String getExperience() {
+        return experience;
+    }
+    public void setExperience(String experience) {
+        this.experience = experience;
+    }
+    public String getGender() {
+        return gender;
+    }
+    public void setGender(String gender){
+        this.gender=gender;
     }
 }

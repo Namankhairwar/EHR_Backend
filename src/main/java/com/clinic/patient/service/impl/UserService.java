@@ -1,6 +1,7 @@
 package com.clinic.patient.service.impl;
 
 
+import com.clinic.patient.dto.DoctorResponseDTO;
 import com.clinic.patient.dto.UserRequestDTO;
 import com.clinic.patient.dto.UserResponseDTO;
 import com.clinic.patient.entities.User;
@@ -63,11 +64,23 @@ public class UserService {
     }
 
     private UserResponseDTO mapToResponse(User user) {
+        DoctorResponseDTO doctorDTO = null;
+        if (user.getDoctor() != null) {
+            doctorDTO = new DoctorResponseDTO(
+                    user.getDoctor().getName(),
+                    user.getDoctor().getSpecialization(),
+                    user.getDoctor().getPhone()
+            );
+        }
+
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .doctor(doctorDTO)   // ✅ only lightweight DTO now
                 .build();
     }
+
+
 }

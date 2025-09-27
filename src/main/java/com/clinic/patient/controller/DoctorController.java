@@ -38,6 +38,11 @@ public class DoctorController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{email}")
+    public ResponseEntity<Doctor> updateDoctor(@PathVariable String email, @RequestBody Doctor doctor) {
+        return ResponseEntity.ok(doctorService.updateDoctor(email,doctor));
+    }
+
     // Delete Doctor
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
