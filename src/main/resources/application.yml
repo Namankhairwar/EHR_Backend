@@ -20,7 +20,7 @@ server:
 
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: postgresql://postgres.railway.internal:5432/railway
     driver-class-name: org.postgresql.Driver
 
   jpa:
