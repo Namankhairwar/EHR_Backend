@@ -92,5 +92,4 @@ public class UserController {
                     .body(new LoginResponse(false, "Login failed: " + e.getMessage()));
         }
     }
-
 }
