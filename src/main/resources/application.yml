@@ -3,9 +3,11 @@ server:
   port: 8081
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/clinic
+#    url: jdbc:postgresql://localhost:5432/clinic
+    url: jdbc:postgresql://postgres.railway.internal:5432/railway
     username: postgres
-    password: "Namank@1234"
+#    password: "Namank@1234"
+    password: "afyJoLSoUVEegqCVyOxlDopUdMtrFIPS"
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
