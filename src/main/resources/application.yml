@@ -1,18 +1,33 @@
+#
+#server:
+#  port: 8081
+#spring:
+#  datasource:
+##    url: jdbc:postgresql://localhost:5432/clinic
+#    url: jdbc:postgresql://postgres.railway.internal:5432/railway
+#    username: postgres
+##    password: "Namank@1234"
+#    password: "afyJoLSoUVEegqCVyOxlDopUdMtrFIPS"
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: update  # or 'create', 'validate', 'none' depending on your use case
+#    show-sql: true
+#
 
 server:
-  port: 8081
+  port: ${PORT:8080}
+
 spring:
   datasource:
-#    url: jdbc:postgresql://localhost:5432/clinic
-    url: jdbc:postgresql://postgres.railway.internal:5432/railway
-    username: postgres
-#    password: "Namank@1234"
-    password: "afyJoLSoUVEegqCVyOxlDopUdMtrFIPS"
+    url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
-      ddl-auto: update  # or 'create', 'validate', 'none' depending on your use case
+      ddl-auto: update
     show-sql: true
+
 #server:
 #  port: ${PORT:8080}
 #
