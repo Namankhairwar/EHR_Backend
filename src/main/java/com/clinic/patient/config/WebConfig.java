@@ -13,8 +13,8 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-//                        .allowedOrigins("http://localhost:3000") // React dev server
-                        .allowedOrigins("https://donedoc.netlify.app") // React dev server
+                        .allowedOrigins("http://localhost:3000") // React dev server
+//                        .allowedOrigins("https://donedoc.netlify.app") // React dev server
 
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
