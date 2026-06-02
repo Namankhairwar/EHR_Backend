@@ -3,6 +3,7 @@ package com.clinic.patient.controller;
 
 import com.clinic.patient.entities.Doctor;
 import com.clinic.patient.service.DoctorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,20 +13,21 @@ import java.util.List;
 @RequestMapping("/api/doctors")
 public class DoctorController {
 
-    private final DoctorService doctorService;
 
-    public DoctorController(DoctorService doctorService) {
-        this.doctorService = doctorService;
+    private final DoctorService doctorService;
+    @Autowired
+    DoctorController(DoctorService doctorService){
+        this.doctorService =doctorService;
     }
 
     // Create Doctor
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Doctor> createDoctor(@RequestBody Doctor doctor) {
         return ResponseEntity.ok(doctorService.saveDoctor(doctor));
     }
 
     // Get All Doctors
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Doctor>> getAllDoctors() {
         return ResponseEntity.ok(doctorService.getAllDoctors());
     }

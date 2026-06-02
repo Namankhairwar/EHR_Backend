@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @author Krishana dubey
+ */
 @Service
 public class DoctorService {
 
@@ -36,15 +39,7 @@ public class DoctorService {
     public Doctor updateDoctor(String email, Doctor doctor) {
         Optional<Doctor> existingDoctorOpt = doctorRepository.findByEmail(email);
         if (existingDoctorOpt.isPresent()) {
-            Doctor existingDoctor = existingDoctorOpt.get();
-            existingDoctor.setName(doctor.getName());
-            existingDoctor.setSpecialization(doctor.getSpecialization());
-            existingDoctor.setPhone(doctor.getPhone());
-            existingDoctor.setEmail(doctor.getEmail());
-            existingDoctor.setAge(doctor.getAge());
-            existingDoctor.setExperience(doctor.getExperience());
-            existingDoctor.setGender(doctor.getGender());
-            return doctorRepository.save(existingDoctor);
+            return doctorRepository.save(doctor);
         } else {
             throw new DoctorNotFoundException("Doctor not found with email: " + email);
         }
