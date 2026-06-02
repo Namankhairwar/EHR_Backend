@@ -2,12 +2,19 @@ package com.clinic.patient.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+/**
+ * @author Krishana dubey
+ */
 @Entity
 @Table(name = "doctors")
+@Getter
+@Setter
 public class Doctor {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long doctorId;
@@ -20,74 +27,4 @@ public class Doctor {
     private String experience;
     private String gender;
 
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<User> users;  //one doctor can have many patients
-
-    // Getters and Setters
-    public Long getDoctorId() {
-        return doctorId;
-    }
-
-    public void setDoctorId(Long doctorId) {
-        this.doctorId = doctorId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSpecialization() {
-        return specialization;
-    }
-
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-    public String getAge() {
-        return age;
-    }
-    public void setAge(String age) {
-        this.age = age;
-    }
-    public String getExperience() {
-        return experience;
-    }
-    public void setExperience(String experience) {
-        this.experience = experience;
-    }
-    public String getGender() {
-        return gender;
-    }
-    public void setGender(String gender){
-        this.gender=gender;
-    }
 }

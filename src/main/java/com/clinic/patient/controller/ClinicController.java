@@ -1,7 +1,7 @@
 package com.clinic.patient.controller;
 
 import com.clinic.patient.entities.Patient;
-import com.clinic.patient.service.ClinicService;
+import com.clinic.patient.service.ClinicServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +15,13 @@ import java.util.Optional;
 public class ClinicController {
 
     @Autowired
-    private ClinicService clinicService;
+    private ClinicServiceImpl clinicService;
 
     @GetMapping("/getPatient")
     public List<Patient> getPatient() {
         return clinicService.getPatient();
     }
+
 
     // GET: Retrieve a specific patient by ID  localhost:8080/CMS/123456
     @GetMapping("/{id}")
@@ -30,8 +31,9 @@ public class ClinicController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
+
     // POST: Create a new patient
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
         Patient createdPatient = clinicService.savePatient(patient);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPatient);  // 201 Created
