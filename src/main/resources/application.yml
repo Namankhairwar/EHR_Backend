@@ -15,6 +15,12 @@ spring:
     show-sql: true
 
 
+#Suggestion: Let's use environment variables for DB URL, username, and password.
+#  It will improve security and allow every developer to run the project locally
+#  without changing configuration files
+
+
+
 
 #server:
 #  port: ${PORT:8080}
