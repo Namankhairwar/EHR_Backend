@@ -1,4 +1,4 @@
-package com.clinic.patient.service.impl;
+package com.clinic.patient.service;
 
 import com.clinic.patient.dto.AppointmentRequestDTO;
 import com.clinic.patient.dto.AppointmentResponseDTO;
@@ -9,7 +9,7 @@ import com.clinic.patient.models.AppointmentStatus;
 import com.clinic.patient.repositories.AppointmentRepository;
 import com.clinic.patient.repositories.DoctorRepository;
 import com.clinic.patient.repositories.PatientRepository;
-import com.clinic.patient.service.AppointmentService;
+import com.clinic.patient.repositories.AppointmentService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

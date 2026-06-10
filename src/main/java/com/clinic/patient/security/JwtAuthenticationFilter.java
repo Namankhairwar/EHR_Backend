@@ -44,13 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = header.substring(7);
+        System.out.println(jwtService.validateToken(token));
         if(!jwtService.validateToken(token)){
             log.warn("Invalid Token");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid or Expired token");
             return;
         }
-    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken= new   UsernamePasswordAuthenticationToken(jwtService.getEmail(token),null,new ArrayList<>());
+    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken= new   UsernamePasswordAuthenticationToken(request.getHeader("email"),null,new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         filterChain.doFilter(request,response);
     }

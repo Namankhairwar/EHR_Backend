@@ -121,8 +121,8 @@ public class UserService {
         );
 
         return ResponseEntity.ok(
-              new AuthLoginResponse(new LoginResponse(true,"Authenticated",userData),new TokenResponse(jwtService.generateNewToken(user.getEmail()),jwtService.generateRefreshToken(user.getEmail())))
-        );
+              new AuthLoginResponse(new LoginResponse(true,"Authenticated",userData),new TokenResponse(jwtService.generateNewToken(loginRequest.getEmail()),jwtService.generateRefreshToken(loginRequest.getEmail()))));
+
 
     } catch (Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

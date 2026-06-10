@@ -1,4 +1,4 @@
-package com.clinic.patient.service;
+package com.clinic.patient.repositories;
 
 import com.clinic.patient.dto.AppointmentRequestDTO;
 import com.clinic.patient.dto.AppointmentResponseDTO;
