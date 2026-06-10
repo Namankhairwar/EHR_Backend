@@ -1,9 +1,6 @@
 package com.clinic.patient.security;
 
 
-
-import com.clinic.patient.entities.User;
-import com.clinic.patient.models.UserRequestDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -27,23 +25,25 @@ public class JwtService {
     private String secretKey;
     @Value("${jwt.expiration}")
     private long expiration;
-
     @Value("${jwt.refresh-expiration}")
     private String refresh_expiration;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
     public String generateNewToken(String email) {
-        return Jwts.builder()
+ return Jwts.builder()
                 .setSubject(email)
                 .claim("type", "Access")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS256,)
+          .setExpiration(new Date(System.currentTimeMillis()+expiration))
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
                 .compact();
+         }
+
+    public static void main(String[] args) {
+        JwtService main = new JwtService();
+        System.out.println(main.validateToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ5eSIsInR5cGUiOiJSZWZyZXNoIiwiaWF0IjoxNzgxMTEyNDQ1LCJleHAiOjE3ODExOTg4NDV9.QyY00GP1ETA3w4rtStkLqjjpwis3x_9TzIW64t2EYLE"));
     }
-
-
     public String generateRefreshToken(String email){
         logger.info("Generating the refresh Tokens for : {}",email);
         return Jwts.builder()
@@ -51,7 +51,7 @@ public class JwtService {
                 .claim("type","Refresh")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+expiration))
-                .signWith(SignatureAlgorithm.HS256,secretKey.getBytes(StandardCharsets.UTF_8))
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -59,13 +59,12 @@ public class JwtService {
 
     public boolean validateToken(String token){
         try{
-            String email = getEmail(token);
-            logger.info("Validating the token {}",email);
+            logger.info("Validating the token {}",token);
             Jwts.
-                    parser().
+                    parserBuilder().
                     setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).
-                    parseClaimsJwt(token);
-            logger.info("Successfully validate the token {}",email);
+                    build().parseClaimsJws(token).getBody().getSubject();
+            logger.info("Successfully validate the token ");
             return true;
         }catch(ExpiredJwtException e){
         logger.warn("Token is expired");
@@ -77,12 +76,12 @@ public class JwtService {
     }
 
 
-    public String getEmail(String token){
-        return getAllClaims(token).getSubject();
-    }
+//    public String getEmail(String token){
+//        return getAllClaims(token).getSubject();
+//    }
 
-    public Claims getAllClaims(String token){
-       return Jwts.parser().setSigningKey(secretKey).parseClaimsJwt(token).getBody();
-    }
+//    public Claims getAllClaims(String token){
+//       return Jwts.parser().setSigningKey(secretKey).parseClaimsJwt(token).getBody();
+//    }
 
 }

@@ -40,7 +40,7 @@ public class UserController {
 
         UserResponseDTO userResponseDTO = userService.createUser(dto);
 
-        TokenResponse tokenResponse =new TokenResponse(jwtService.generateNewToken(dto.getEmail()),jwtService.generateRefreshToken(dto.getEmail()));
+        TokenResponse tokenResponse =new TokenResponse(jwtService.generateNewToken(dto.getEmail()), jwtService.generateRefreshToken(dto.getEmail()));
         return ResponseEntity.ok(new AuthResponse(userResponseDTO,tokenResponse));
     }
 
