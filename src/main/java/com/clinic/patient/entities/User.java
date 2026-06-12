@@ -82,12 +82,14 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name="date",columnDefinition = "Date")
-    private LocalDate date;
+    @Column(name="dob",columnDefinition = "Date")
+    private LocalDate dob;
 
 
     private String password;
 
+    private String relation_name;
+    private Long relation_no;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -99,13 +101,14 @@ public class User {
     )
     private Long phoneNo;
 
-
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
 
     @Embedded
     private Address address;
 
+    @Enumerated(EnumType.STRING)
     private BloodGroup bloodGroup;
 
     @Transient

@@ -16,5 +16,7 @@ public class UserResponseDTO {
    private String firstName;
    private String lastName;
    private Role role;
+   private String relation_name;
+   private Long relation_no;
 
 }

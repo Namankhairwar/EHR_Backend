@@ -2,5 +2,7 @@ package com.clinic.patient.role;
 
 public enum Gender {
     Male,
-    Female
+    Female,
+    Non_binary,
+    Prefer_not_to_say
 }

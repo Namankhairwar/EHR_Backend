@@ -14,11 +14,13 @@ public class UserRequestDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private String date;
+    private String dob;
     private String password;
     private Role role;
     private Long phoneNo;
     private BloodGroup bloodGroup;
     private Gender gender;
+    private String relation_name;
+    private Long relation_no;
 
 }
