@@ -41,7 +41,7 @@ public class UserService {
         User user = User.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .date(LocalDate.parse(dto.getDate(),DateTimeFormatter.ofPattern("MM-dd-yyyy")))
+                .dob(LocalDate.parse(dto.getDob(),DateTimeFormatter.ofPattern("MM-dd-yyyy")))
                 .gender(dto.getGender())
                 .phoneNo(dto.getPhoneNo())
                 .address(dto.getAddress())
@@ -49,6 +49,8 @@ public class UserService {
                 .password(dto.getPassword())
                 .role(dto.getRole())
                 .bloodGroup(dto.getBloodGroup())
+                .relation_name(dto.getRelation_name())
+                .relation_no(dto.getRelation_no())
                 .build();
         log.info("user processing {}",user);
         User saved = userRepository.save(user);
@@ -93,7 +95,9 @@ public class UserService {
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole()
+                user.getRole(),
+                user.getRelation_name(),
+                user.getRelation_no()
         );
     }
 
