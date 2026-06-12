@@ -1,11 +1,11 @@
 package com.clinic.patient.service;
 
-import com.clinic.patient.dto.AppointmentRequestDTO;
-import com.clinic.patient.dto.AppointmentResponseDTO;
+import com.clinic.patient.models.AppointmentRequestDTO;
+import com.clinic.patient.models.AppointmentResponseDTO;
 import com.clinic.patient.entities.Appointment;
 import com.clinic.patient.entities.Doctor;
 import com.clinic.patient.entities.Patient;
-import com.clinic.patient.models.AppointmentStatus;
+import com.clinic.patient.role.AppointmentStatus;
 import com.clinic.patient.repositories.AppointmentRepository;
 import com.clinic.patient.repositories.DoctorRepository;
 import com.clinic.patient.repositories.PatientRepository;
