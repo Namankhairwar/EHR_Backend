@@ -3,10 +3,13 @@ server:
   port: 8086
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/clinic
-    username: root
-    password: "krishna1A@123"
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    DB_USER_NAME=postgres
+        DB_URL=jdbc:postgresql://db.ocbxteztnmvkfdoiidco.supabase.co:5432/clinic
+        DB_PASSWORD=SkyBags@2026
+    username: postgres
+    password : SkyBags@2026
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update

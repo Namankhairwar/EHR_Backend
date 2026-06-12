@@ -5,11 +5,14 @@ import com.clinic.patient.models.*;
 import com.clinic.patient.entities.User;
 import com.clinic.patient.repositories.UserRepository;
 import com.clinic.patient.security.JwtService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @author Krishana dubey
  */
+@Slf4j
 @Service
 public class UserService {
 
@@ -35,11 +39,18 @@ public class UserService {
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
         User user = User.builder()
-                .fullName(dto.getFullName())
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .date(LocalDate.parse(dto.getDate(),DateTimeFormatter.ofPattern("MM-dd-yyyy")))
+                .gender(dto.getGender())
+                .phoneNo(dto.getPhoneNo())
+                .address(dto.getAddress())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .role(dto.getRole())
+                .bloodGroup(dto.getBloodGroup())
                 .build();
+        log.info("user processing {}",user);
         User saved = userRepository.save(user);
         return mapToResponse(saved);
     }
@@ -59,12 +70,15 @@ public class UserService {
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setFullName(dto.getFullName());
+        user.setFirstName(dto.getFirstName());
+
         user.setEmail(dto.getEmail());
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
             user.setPassword(dto.getPassword());
         }
         user.setRole(dto.getRole());
+       user.setLastName(dto.getLastName());
+
         return mapToResponse(userRepository.save(user));
     }
 
@@ -74,12 +88,13 @@ public class UserService {
 
     private UserResponseDTO mapToResponse(User user) {
 
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
+        return new UserResponseDTO(
+                user.getEmail(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRole()
+        );
     }
 
     /**
@@ -113,12 +128,7 @@ public class UserService {
         }
 
         // Login successful
-       UserResponseDTO userData = new UserResponseDTO(
-                user.getFullName(),
-               user.getId(),
-               user.getEmail(),
-               user.getRole()
-        );
+       UserResponseDTO userData = mapToResponse(user);
 
         return ResponseEntity.ok(
               new AuthLoginResponse(new LoginResponse(true,"Authenticated",userData),new TokenResponse(jwtService.generateNewToken(loginRequest.getEmail()),jwtService.generateRefreshToken(loginRequest.getEmail()))));

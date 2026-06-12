@@ -55,9 +55,9 @@ cd EHR_Backend
 Update `application.properties`
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/clinic
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:postgresql://db.ocbxteztnmvkfdoiidco.supabase.co:5432/clinic
+spring.datasource.username=postgres
+spring.datasource.password=SkyBags@2026
 ```
 
 ### Build Project

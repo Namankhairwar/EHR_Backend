@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @AllArgsConstructor
 @Data
 @Setter
-@NoArgsConstructor
 @ResponseBody
 public class UserResponseDTO {
    private String email;
    private Long id;
-   private String fullName;
+   private String firstName;
+   private String lastName;
    private Role role;
 
 }
