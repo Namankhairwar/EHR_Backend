@@ -1,18 +1,24 @@
 package com.clinic.patient.models;
 
-import com.clinic.patient.role.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-
+import com.clinic.patient.entities.User;
+import com.clinic.patient.role.*;
+import lombok.*;
 @Getter
 @AllArgsConstructor
 @Builder
 @Data
+@NoArgsConstructor
 public class UserRequestDTO {
-    private String fullName;
+
+    private User.Address address;
+    private String firstName;
+    private String lastName;
     private String email;
+    private String date;
     private String password;
     private Role role;
+    private Long phoneNo;
+    private BloodGroup bloodGroup;
+    private Gender gender;
+
 }

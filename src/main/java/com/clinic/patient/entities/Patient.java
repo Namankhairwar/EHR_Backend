@@ -1,7 +1,10 @@
 package com.clinic.patient.entities;
 
+import com.clinic.patient.role.Gender;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 /**
  * @author Krishana dubey
@@ -37,9 +40,11 @@ public class Patient {
     private int age;
 
     @Column
-    private String gender;
+    private Gender gender;
 
     @Column
     private String allergy;
+
+
 
 }
