@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: Clinic Patient Management API
+  description: API for managing users, authentication, doctors, and appointments.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+paths:
+  /users/auth/register:
+    post:
+      summary: Register a new user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+    put:
+      summary: Update user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: Updated user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+    delete:
+      summary: Delete user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          description: User deleted successfully
+
+  /users/auth/login:
+    post:
+      summary: Login user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+
+  /appointments:
+    post:
+      summary: Create appointment
+      tags: [Appointments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentRequestDTO'
+      responses:
+        '200':
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentResponseDTO'
+
+components:
+  schemas:
+    UserRequestDTO:
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string }
+        dob: { type: string, format: date }
+        password: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        phoneNo: { type: integer }
+        bloodGroup: { $ref: '#/components/schemas/BloodGroup' }
+        gender: { $ref: '#/components/schemas/Gender' }
+        relation_name: { type: string }
+        relation_no: { type: integer }
+
+    UserResponseDTO:
+      type: object
+      properties:
+        email: { type: string }
+        id: { type: integer }
+        firstName: { type: string }
+        lastName: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        relation_name: { type: string }
+        relation_no: { type: integer }
+
+    AuthResponse:
+      type: object
+      properties:
+        userResponseDTO: { $ref: '#/components/schemas/UserResponseDTO' }
+        tokenResponse: { $ref: '#/components/schemas/TokenResponse' }
+
+    AuthLoginResponse:
+      type: object
+      properties:
+        loginResponse: { $ref: '#/components/schemas/LoginResponse' }
+        tokenResponse: { $ref: '#/components/schemas/TokenResponse' }
+
+    LoginRequest:
+      type: object
+      properties:
+        email: { type: string }
+        password: { type: string }
+
+    LoginResponse:
+      type: object
+      properties:
+        status: { type: boolean }
+        message: { type: string }
+        userResponseDTO: { $ref: '#/components/schemas/UserResponseDTO' }
+
+    TokenResponse:
+      type: object
+      properties:
+        generateAccessToken: { type: string }
+        generateRefreshToken: { type: string }
+
+    AppointmentRequestDTO:
+      type: object
+      properties:
+        patientId: { type: integer }
+        doctorId: { type: integer }
+        appointmentTime: { type: string, format: date-time }
+        duration: { type: integer }
+        reason: { type: string }
+        status: { $ref: '#/components/schemas/AppointmentStatus' }
+
+    AppointmentResponseDTO:
+      type: object
+      properties:
+        id: { type: integer }
+        patientId: { type: integer }
+        patientName: { type: string }
+        doctorId: { type: integer }
+        doctorName: { type: string }
+        appointmentTime: { type: string, format: date-time }
+        duration: { type: integer }
+        reason: { type: string }
+        status: { $ref: '#/components/schemas/AppointmentStatus' }
+
+    Address:
+      type: object
+      properties:
+        addressLine: { type: string }
+        pin_code: { type: integer }
+        city: { type: string }
+        state: { type: string }
+
+    DoctorResponseDTO:
+      type: object
+      properties:
+        name: { type: string }
+        specialization: { type: string }
+        phone: { type: string }
+
+    Role:
+      type: string
+      enum: [PATIENT, DOCTOR, HOSPITAL_STAFF, ADMIN]
+
+    Gender:
+      type: string
+      enum: [Male, Female, Non_binary, Prefer_not_to_say]
+
+    BloodGroup:
+      type: string
+      enum: [Ap, An, Bp, Bn, ABp, ABn, Op, On]
+
+    AppointmentStatus:
+      type: string
+      enum: [SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED]
