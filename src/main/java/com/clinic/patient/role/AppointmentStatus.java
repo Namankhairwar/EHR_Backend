@@ -1,4 +1,4 @@
-package com.clinic.patient.models;
+package com.clinic.patient.role;
 
 public enum AppointmentStatus {
 

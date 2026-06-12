@@ -1,6 +1,6 @@
 package com.clinic.patient.entities;
 
-import com.clinic.patient.models.AppointmentStatus;
+import com.clinic.patient.role.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

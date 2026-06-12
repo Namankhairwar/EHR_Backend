@@ -1,8 +1,8 @@
 package com.clinic.patient.controller;
 
 
-import com.clinic.patient.dto.AppointmentRequestDTO;
-import com.clinic.patient.dto.AppointmentResponseDTO;
+import com.clinic.patient.models.AppointmentRequestDTO;
+import com.clinic.patient.models.AppointmentResponseDTO;
 import com.clinic.patient.repositories.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
