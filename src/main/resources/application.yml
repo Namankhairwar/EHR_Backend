@@ -3,6 +3,7 @@ server:
   port: 8086
 spring:
   datasource:
+    url: jdbc:postgresql://db.ocbxteztnmvkfdoiidco.supabase.co:5432/clinic
     username: postgres
     password : SkyBags@2026
     driver-class-name: org.postgresql.Driver
@@ -10,6 +11,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  security:
+    user:
+      name: user
+      password: krishna
 jwt:
   secret: c7f75eaa04c8749f73a74496b669a862f00bba7033e0a8e8279f6b3d7f1be2c9
   expiration: 86400000
