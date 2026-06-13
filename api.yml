@@ -226,5 +226,6 @@ components:
       enum: [Ap, An, Bp, Bn, ABp, ABn, Op, On]
 
     AppointmentStatus:
+#      0BkSFYvi
       type: string
       enum: [SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED]
