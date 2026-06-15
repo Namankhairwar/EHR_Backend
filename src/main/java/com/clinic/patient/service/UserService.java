@@ -41,7 +41,7 @@ public class UserService {
         User user = User.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .dob(LocalDate.parse(dto.getDob(),DateTimeFormatter.ofPattern("MM-dd-yyyy")))
+                .dob(LocalDate.parse(dto.getDob()))
                 .gender(dto.getGender())
                 .phoneNo(dto.getPhoneNo())
                 .address(dto.getAddress())
