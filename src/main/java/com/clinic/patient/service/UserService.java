@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,10 +37,11 @@ public class UserService {
     }
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
+
         User user = User.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .dob(LocalDate.parse(dto.getDob(),DateTimeFormatter.ofPattern("MM-dd-yyyy")))
+                .dob(LocalDate.parse(dto.getDob()))
                 .gender(dto.getGender())
                 .phoneNo(dto.getPhoneNo())
                 .address(dto.getAddress())
@@ -52,8 +52,9 @@ public class UserService {
                 .relation_name(dto.getRelation_name())
                 .relation_no(dto.getRelation_no())
                 .build();
-        log.info("user processing {}",user);
+
         User saved = userRepository.save(user);
+
         return mapToResponse(saved);
     }
 
@@ -143,4 +144,37 @@ public class UserService {
                 .body(new AuthLoginResponse(new LoginResponse(false, "Login failed: " + e.getMessage(),null),null));
     }}
 
+    public ResponseEntity<AuthResponse> register(UserRequestDTO dto) {
+
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+
+        User user = User.builder()
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .email(dto.getEmail())
+                .password(dto.getPassword())
+                .dob(java.time.LocalDate.parse(dto.getDob()))
+                .role(dto.getRole())
+                .phoneNo(dto.getPhoneNo())
+                .gender(dto.getGender())
+                .bloodGroup(dto.getBloodGroup())
+                .address(dto.getAddress())
+                .relation_name(dto.getRelation_name())
+                .relation_no(dto.getRelation_no())
+                .build();
+
+        User saved = userRepository.save(user);
+
+        UserResponseDTO responseDTO = mapToResponse(saved);
+
+        TokenResponse tokenResponse = new TokenResponse(
+                jwtService.generateNewToken(saved.getEmail()),
+                jwtService.generateRefreshToken(saved.getEmail())
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new AuthResponse(responseDTO, tokenResponse));
+    }
 }
