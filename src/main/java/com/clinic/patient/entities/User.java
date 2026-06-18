@@ -35,6 +35,8 @@ public class User {
     @Embeddable
     @NoArgsConstructor
     @ToString
+    @Getter
+    @Setter
 
     public static class Address{
 
@@ -66,6 +68,38 @@ public class User {
         )
         Long pin_code;
     }
+
+    @Embeddable
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @ToString
+    public  static class Emergency{
+
+        @JsonCreator
+        public Emergency(@JsonProperty  String contactName,
+                         @JsonProperty  Long contactPhoneNo,
+                         @JsonProperty  String relationship
+                                                            ) {
+            this.contactName = contactName;
+            this.contactPhoneNo = contactPhoneNo;
+            this.relationship = relationship;
+        }
+
+        @Column(name = "contactName")
+        String contactName;
+
+        @Column(name= "relationship")
+        String relationship;
+
+        @Column(name= "contactPhoneNo",
+                nullable = false,length =10)
+        Long contactPhoneNo;
+
+
+    }
+
+
     @Transient
     private static final DateTimeFormatter obj=DateTimeFormatter.ofPattern("mm-DD-yyyy");
 
@@ -87,9 +121,6 @@ public class User {
 
 
     private String password;
-
-    private String relation_name;
-    private Long relation_no;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -107,6 +138,8 @@ public class User {
 
     @Embedded
     private Address address;
+    @Embedded
+    private Emergency emergency;
 
     @Enumerated(EnumType.STRING)
     private BloodGroup bloodGroup;

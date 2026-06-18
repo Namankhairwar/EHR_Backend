@@ -20,7 +20,6 @@ public class UserRequestDTO {
     private Long phoneNo;
     private BloodGroup bloodGroup;
     private Gender gender;
-    private String relation_name;
-    private Long relation_no;
+    private User.Emergency emergencyContact;
 
 }
