@@ -49,8 +49,6 @@ public class UserService {
                 .password(dto.getPassword())
                 .role(dto.getRole())
                 .bloodGroup(dto.getBloodGroup())
-                .relation_name(dto.getRelation_name())
-                .relation_no(dto.getRelation_no())
                 .build();
 
         User saved = userRepository.save(user);
@@ -96,9 +94,12 @@ public class UserService {
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
+                user.getPhoneNo(),
+                user.getDob(),
+                user.getGender(),
                 user.getRole(),
-                user.getRelation_name(),
-                user.getRelation_no()
+                user.getBloodGroup(),
+                user.getAddress()
         );
     }
 
@@ -161,8 +162,7 @@ public class UserService {
                 .gender(dto.getGender())
                 .bloodGroup(dto.getBloodGroup())
                 .address(dto.getAddress())
-                .relation_name(dto.getRelation_name())
-                .relation_no(dto.getRelation_no())
+                .emergency(dto.getEmergencyContact())
                 .build();
 
         User saved = userRepository.save(user);
