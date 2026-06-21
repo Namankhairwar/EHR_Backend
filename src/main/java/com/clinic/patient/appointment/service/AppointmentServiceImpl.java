@@ -104,7 +104,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                         appointment.getPatient().getFirstName() + " " +
                                 appointment.getPatient().getLastName()
                 )
-                .doctorId(appointment.getDoctor().getEhrId())
                 .doctorName(appointment.getDoctor().getUser().getFirstName())
                 .appointmentTime(appointment.getAppointmentTime())
                 .duration(appointment.getDuration())

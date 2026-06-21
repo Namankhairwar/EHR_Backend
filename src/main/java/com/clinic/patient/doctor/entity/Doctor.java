@@ -22,10 +22,12 @@ public class Doctor {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @OneToOne(targetEntity = User.class,fetch=FetchType.EAGER)
-  private Long ehrId;
-    @Transient
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
+    private Long id;
+    
+    @OneToOne(targetEntity = User.class,fetch=FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinColumn(name = "ehr_id")
     private User user;
 
     @Embeddable
@@ -38,6 +40,7 @@ public class Doctor {
 
         private String specialization;
         private String licenseNumber;
+
         @Convert(converter =MyConvertor.class)
         @Column(columnDefinition = "TEXT")
         private List<String> degrees;
@@ -54,10 +57,10 @@ public class Doctor {
 
         @Override
         public List<String> convertToEntityAttribute(String o) {
-           String[] sep= o.split("[\\[\\] ]");
+           String[] sep= o.split("[\\[\\],]");
            List<String> ret= new ArrayList<>();
             for (String s :sep) {
-               if(!(s.equals("[")||s.equals("]"))) ret.add(s);
+            if(!s.isEmpty()) ret.add(s);
             }
             return ret;
         }

@@ -51,7 +51,7 @@ public class AuthController {
             return ResponseEntity.ok(new AuthResponse(userResponseDTO, tokenResponse));
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(GlobalExceptionHandler.internalError(new InternalException("Server is not accepting response try again after some time")));
+                    .body(GlobalExceptionHandler.internalError(new InternalException(e.getLocalizedMessage())));
         }}
 
 

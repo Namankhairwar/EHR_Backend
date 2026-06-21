@@ -32,7 +32,6 @@ public class GlobalExceptionHandler extends Exception {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ClassNotFoundException.class)
     public static ResponseEntity<Map<String, Object>> notFound(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());
@@ -43,7 +42,6 @@ public class GlobalExceptionHandler extends Exception {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ClassNotFoundException.class)
     public static ResponseEntity<Map<String, Object>> incorrectUpdate(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());

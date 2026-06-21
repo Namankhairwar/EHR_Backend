@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-
+import com.clinic.patient.user.entity.User;
 /**
  * @author Krishana dubey
  *
@@ -29,10 +29,14 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
-
-    public UserResponseDTO saveDoctor(UserRequestDTO doctor) {
-  Doctor user =doctorRepository.save(MAP.map(doctor, Doctor::new));
-       return MAP.map(user, UserResponseDTO::new);
+    public UserResponseDTO saveDoctor(UserRequestDTO doctor_RequestDTO) {
+        Doctor doctor_ehr = new Doctor();
+   doctor_ehr.setUser(MAP.map(doctor_RequestDTO,User::new));
+        MAP.copyInTheObject(doctor_RequestDTO,doctor_ehr);
+    doctor_ehr=doctorRepository.save(doctor_ehr);
+     UserResponseDTO userResponseDTO= MAP.map(doctor_RequestDTO, UserResponseDTO::new);
+      userResponseDTO.setId(doctor_ehr.getId());
+      return userResponseDTO;
     }
 
     public List<Doctor> getAllDoctors() {
@@ -50,7 +54,8 @@ public class DoctorService {
     public Doctor updateDoctor(Long id, Doctor doctor)  throws GlobalExceptionHandler{
         Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
         if (existingDoctorOpt.isPresent()) {
-            return doctorRepository.save(doctor);
+            MAP.copyInTheObject(doctor, existingDoctorOpt.get());
+            return doctorRepository.save(existingDoctorOpt.get());
         } else {
             throw new GlobalExceptionHandler("Incorrect email try to enter again");
         }

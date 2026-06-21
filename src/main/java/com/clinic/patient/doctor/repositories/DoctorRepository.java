@@ -10,5 +10,5 @@ import java.util.Optional;
 @EnableJpaRepositories(basePackages = "com.clinic.patient.doctor.repositories")
 public interface DoctorRepository   extends JpaRepository<Doctor, Long> {
 
-    Optional<Doctor> findByEmail(String email);
+
 }

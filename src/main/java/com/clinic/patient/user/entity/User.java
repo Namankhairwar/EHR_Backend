@@ -91,7 +91,7 @@ public class User {
 
 
     @Transient
-    private static final DateTimeFormatter obj=DateTimeFormatter.ofPattern("mm-DD-yyyy");
+    public static final DateTimeFormatter obj=DateTimeFormatter.ofPattern("DD-mm-yyyy");
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -129,7 +129,7 @@ public class User {
     @Embedded
     private Address address;
     @Embedded
-    private Emergency emergency;
+    private Emergency emergencyContact;
 
     @Enumerated(EnumType.STRING)
     private BloodGroup bloodGroup;

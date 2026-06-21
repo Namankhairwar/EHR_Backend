@@ -39,7 +39,7 @@ public class UserController {
      * @param id uses to fetch the user
      * @return user object
      */
-    @GetMapping("users/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
      try {
         return ResponseEntity.ok(userService.getUserById(id, UserResponseDTO.class));
@@ -61,7 +61,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/BloodGroup")
-    public ResponseEntity<?> updateUserBloodGroup(@PathVariable Long id, @RequestBody BloodGroup bloodGroup) {
+    public ResponseEntity<?> updateUserBloodGroup(@PathVariable Long id, @RequestBody UserRequestDTO bloodGroup) {
 
       try{ return ResponseEntity.ok(userService.updateUser(id, MAP.map(bloodGroup,UserRequestDTO::new)));}
       catch(GlobalExceptionHandler e){

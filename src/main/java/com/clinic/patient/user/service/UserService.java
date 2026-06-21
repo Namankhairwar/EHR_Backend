@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -133,10 +135,10 @@ public class UserService {
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
         User user = MAP.map(dto, User::new);
-
+        user.setDob(LocalDate.parse(dto.getDob(),User.obj));
         User saved = userRepository.save(user);
 
-        UserResponseDTO responseDTO = MAP.map(saved, UserResponseDTO::new);
+        UserResponseDTO responseDTO = MAP.map(dto, UserResponseDTO::new);
 
         TokenResponse tokenResponse = new TokenResponse(
                 jwtService.generateNewToken(saved.getEmail()),

@@ -23,7 +23,7 @@ public class UserResponseDTO {
    private String firstName;
    private String lastName;
    private long phoneNo;
-   private LocalDate dob;
+   private String dob;
    private Gender gender;
    private Role role;
    private BloodGroup bloodGroup;
