@@ -1,17 +1,20 @@
 package com.clinic.patient.appointment.service;
 
+import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.appointment.dto.AppointmentRequestDTO;
 import com.clinic.patient.appointment.dto.AppointmentResponseDTO;
 import com.clinic.patient.appointment.entity.Appointment;
-import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.user.entity.Patient;
-import com.clinic.patient.appointment.state.AppointmentStatus;
 import com.clinic.patient.appointment.repositories.AppointmentRepository;
+import com.clinic.patient.appointment.state.AppointmentStatus;
+import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.repositories.DoctorRepository;
+import com.clinic.patient.user.entity.Patient;
 import com.clinic.patient.user.repositories.PatientRepository;
-import com.clinic.patient.appointment.repositories.AppointmentService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,83 +35,145 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponseDTO createAppointment(AppointmentRequestDTO dto) {
+
         Patient patient = patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
 
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-        Appointment appointment = Appointment.builder()
-                .patient(patient)
-                .doctor(doctor)
-                .appointmentTime(dto.getAppointmentTime())
-                .duration(dto.getDuration())
-                .reason(dto.getReason())
-                .status(AppointmentStatus.SCHEDULED)
-                .build();
+        Appointment appointment = MAP.map(dto, Appointment::new);
+
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
+
+        Appointment saved = appointmentRepository.save(appointment);
+
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public AppointmentResponseDTO getAppointmentById(Long appointmentId) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        return mapToResponse(appointment);
+    }
+
+    @Override
+    public AppointmentResponseDTO rescheduleAppointment(Long appointmentId, AppointmentRequestDTO dto) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        if (appointment.getRescheduleHistory() == null) {
+            appointment.setRescheduleHistory(new ArrayList<>());
+        }
+
+        appointment.getRescheduleHistory().add(appointment.getAppointmentTime());
+
+        appointment.setAppointmentTime(dto.getAppointmentTime());
+
+        if (dto.getDurationMinutes() != null) {
+            appointment.setDurationMinutes(dto.getDurationMinutes());
+        }
+
+        if (dto.getReason() != null) {
+            appointment.setReason(dto.getReason());
+        }
+
+        appointment.setStatus(AppointmentStatus.RESCHEDULED);
 
         return mapToResponse(appointmentRepository.save(appointment));
     }
 
     @Override
-    public List<AppointmentResponseDTO> getAllAppointments() {
-        return appointmentRepository.findAll()
-                .stream()
+    public AppointmentResponseDTO cancelAppointment(Long appointmentId, AppointmentRequestDTO dto) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setCancellationReason(dto.getCancellationReason());
+
+        return mapToResponse(appointmentRepository.save(appointment));
+    }
+
+    @Override
+    public List<AppointmentResponseDTO> getAppointmentsByPatient(
+            Long patientId,
+            AppointmentStatus status,
+            Boolean upcoming
+    ) {
+
+        List<Appointment> appointments;
+
+        if (status != null) {
+            appointments = appointmentRepository.findByPatient_IdAndStatus(patientId, status);
+        } else if (Boolean.TRUE.equals(upcoming)) {
+            appointments = appointmentRepository.findByPatient_IdAndAppointmentTimeAfter(
+                    patientId,
+                    LocalDateTime.now()
+            );
+        } else {
+            appointments = appointmentRepository.findByPatient_Id(patientId);
+        }
+
+        return appointments.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public AppointmentResponseDTO getAppointmentById(Long id) {
-        return appointmentRepository.findById(id)
-                .map(this::mapToResponse)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
-    }
+    public List<AppointmentResponseDTO> getAppointmentsByDoctor(
+            Long doctorId,
+            AppointmentStatus status,
+            LocalDate date
+    ) {
 
-    @Override
-    public AppointmentResponseDTO updateAppointment(Long id, AppointmentRequestDTO dto) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        List<Appointment> appointments;
 
-        appointment.setAppointmentTime(dto.getAppointmentTime());
-        appointment.setDuration(dto.getDuration());
-        appointment.setReason(dto.getReason());
+        if (status != null) {
+            appointments = appointmentRepository.findByDoctor_IdAndStatus(doctorId, status);
+        } else if (date != null) {
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.plusDays(1).atStartOfDay();
 
-        if (dto.getStatus() != null) {
-            appointment.setStatus(dto.getStatus());
+            appointments = appointmentRepository.findByDoctor_IdAndAppointmentTimeBetween(
+                    doctorId,
+                    start,
+                    end
+            );
+        } else {
+            appointments = appointmentRepository.findByDoctor_Id(doctorId);
         }
 
-        return mapToResponse(appointmentRepository.save(appointment));
-    }
-
-    @Override
-    public AppointmentResponseDTO cancelAppointment(Long id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
-
-        appointment.setStatus(AppointmentStatus.CANCELLED);
-
-        return mapToResponse(appointmentRepository.save(appointment));
-    }
-
-    @Override
-    public void deleteAppointment(Long id) {
-        appointmentRepository.deleteById(id);
+        return appointments.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     private AppointmentResponseDTO mapToResponse(Appointment appointment) {
-        return AppointmentResponseDTO.builder()
-                .id(appointment.getId())
-                .patientId(appointment.getPatient().getId())
-                .patientName(
+
+        AppointmentResponseDTO response = MAP.map(appointment, AppointmentResponseDTO::new);
+
+        response.setPatientId(appointment.getPatient().getId());
+        response.setPatientName(
                         appointment.getPatient().getFirstName() + " " +
-                                appointment.getPatient().getLastName()
-                )
-                .doctorName(appointment.getDoctor().getUser().getFirstName())
-                .appointmentTime(appointment.getAppointmentTime())
-                .duration(appointment.getDuration())
-                .reason(appointment.getReason())
-                .status(appointment.getStatus())
-                .build();
+                        appointment.getPatient().getLastName()
+        );
+
+        response.setDoctorId(appointment.getDoctor().getId());
+
+        if (appointment.getDoctor().getUser() != null) {
+            response.setDoctorName(
+                    appointment.getDoctor().getUser().getFirstName() + " " +
+                            appointment.getDoctor().getUser().getLastName()
+            );
+        }
+
+        return response;
     }
 }

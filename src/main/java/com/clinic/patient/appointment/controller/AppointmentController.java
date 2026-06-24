@@ -3,14 +3,16 @@ package com.clinic.patient.appointment.controller;
 
 import com.clinic.patient.appointment.dto.AppointmentRequestDTO;
 import com.clinic.patient.appointment.dto.AppointmentResponseDTO;
-import com.clinic.patient.appointment.repositories.AppointmentService;
+import com.clinic.patient.appointment.service.AppointmentService;
+import com.clinic.patient.appointment.state.AppointmentStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/appointments")
+@RequestMapping("/api")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
@@ -19,8 +21,7 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    // Create Appointment
-    @PostMapping("")
+    @PostMapping("/appointments")
     public ResponseEntity<AppointmentResponseDTO> createAppointment(
             @RequestBody AppointmentRequestDTO dto) {
 
@@ -29,38 +30,68 @@ public class AppointmentController {
         );
     }
 
-    // Get All Appointments
-    @GetMapping("all")
-    public ResponseEntity<List<AppointmentResponseDTO>> getAllAppointments() {
+    @GetMapping("/appointments/{appointmentId}")
+    public ResponseEntity<AppointmentResponseDTO> getAppointmentById(
+            @PathVariable Long appointmentId) {
+
         return ResponseEntity.ok(
-                appointmentService.getAllAppointments()
+                appointmentService.getAppointmentById(appointmentId)
         );
     }
 
-    // Update Appointment
-    @PutMapping("/{id}/reschedule")
-    public ResponseEntity<AppointmentResponseDTO> updateAppointment(
-            @PathVariable Long id,
+    @PatchMapping("/appointments/{appointmentId}/reschedule")
+    public ResponseEntity<AppointmentResponseDTO> rescheduleAppointment(
+            @PathVariable Long appointmentId,
             @RequestBody AppointmentRequestDTO dto) {
 
         return ResponseEntity.ok(
-                appointmentService.updateAppointment(id, dto)
+                appointmentService.rescheduleAppointment(
+                        appointmentId,
+                        dto
+                )
         );
     }
 
-    // Cancel Appointment
-    @PatchMapping("/{id}/cancel")
+    @PatchMapping("/appointments/{appointmentId}/cancel")
     public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
-            @PathVariable Long id) {
+            @PathVariable Long appointmentId,
+            @RequestBody AppointmentRequestDTO dto) {
 
         return ResponseEntity.ok(
-                appointmentService.cancelAppointment(id)
+                appointmentService.cancelAppointment(
+                        appointmentId,
+                        dto
+                )
         );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
-        appointmentService.deleteAppointment(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/patients/{patientId}/appointments")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByPatient(
+            @PathVariable Long patientId,
+            @RequestParam(required = false) AppointmentStatus status,
+            @RequestParam(required = false) Boolean upcoming) {
+
+        return ResponseEntity.ok(
+                appointmentService.getAppointmentsByPatient(
+                        patientId,
+                        status,
+                        upcoming
+                )
+        );
+    }
+
+    @GetMapping("/doctors/{doctorId}/appointments")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctor(
+            @PathVariable Long doctorId,
+            @RequestParam(required = false) AppointmentStatus status,
+            @RequestParam(required = false) LocalDate date) {
+
+        return ResponseEntity.ok(
+                appointmentService.getAppointmentsByDoctor(
+                        doctorId,
+                        status,
+                        date
+                )
+        );
     }
 }
