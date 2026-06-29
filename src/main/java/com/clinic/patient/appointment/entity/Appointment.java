@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "appointments")
@@ -33,7 +34,7 @@ public class Appointment {
     private LocalDateTime appointmentTime;
 
     @Column(nullable = false)
-    private Integer duration;
+    private Integer durationMinutes;
 
     @Column(nullable = false)
     private String reason;
@@ -41,6 +42,17 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AppointmentStatus status;
+
+    @Column
+    private String cancellationReason;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "appointment_reschedule_history",
+            joinColumns = @JoinColumn(name = "appointment_id")
+    )
+    @Column(name = "rescheduled_time")
+    private List<LocalDateTime> rescheduleHistory;
 
 
 }
