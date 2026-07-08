@@ -4,9 +4,9 @@ import com.clinic.patient.user.state.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
-/**
- * @author Krishana dubey
- */
+import java.util.List;
+
+
 @Entity
 @Getter
 @Setter
