@@ -35,7 +35,7 @@ public class DoctorService {
         MAP.copyInTheObject(doctor_RequestDTO,doctor_ehr);
     doctor_ehr=doctorRepository.save(doctor_ehr);
      UserResponseDTO userResponseDTO= MAP.map(doctor_RequestDTO, UserResponseDTO::new);
-      userResponseDTO.setId(doctor_ehr.getId());
+      userResponseDTO.setEhrId(doctor_ehr.getId());
       return userResponseDTO;
     }
 

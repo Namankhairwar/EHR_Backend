@@ -19,30 +19,22 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String firstName;
 
-    @Column
-    private String lastName;
+    @OneToOne
+    @JoinColumn(name = "ehr_id")
+    @MapsId
+    private User user;
 
-    @Column
-    private String email;
-
-    @Column
-    private String mobile;
-
-    @Column
-    private String address;
-
-    @Column
-    private int age;
-
-    @Column
-    private Gender gender;
-
-    @Column
-    private String allergy;
-
-
+//    @Column
+//    private List<Allergy> allergy;
+//
+//    @ToString
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @Data
+//    @Converter
+//    static class Allergy{
+//
+//    }
 
 }

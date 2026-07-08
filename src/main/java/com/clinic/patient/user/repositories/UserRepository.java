@@ -12,7 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
   default User saveUser(User user){
       User u = save(user);
-        System.out.println(u.getEhrid());
+        System.out.println(u.getEhrId());
         return u;
     }
 

@@ -97,6 +97,10 @@ public class UserService {
      *      @return grant the access
      *      Exception : caused Internal_Server_Error
      */
+    public boolean doesUserExist(long id){
+        Optional<User> byId = userRepository.findById(id);
+        return !byId.isEmpty();
+    }
     public ResponseEntity<?> login(LoginRequest loginRequest) {
         // Find user by email
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
@@ -135,7 +139,6 @@ public class UserService {
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
         User user = MAP.map(dto, User::new);
-        user.setDob(LocalDate.parse(dto.getDob(),User.obj));
         User saved = userRepository.save(user);
 
         UserResponseDTO responseDTO = MAP.map(dto, UserResponseDTO::new);

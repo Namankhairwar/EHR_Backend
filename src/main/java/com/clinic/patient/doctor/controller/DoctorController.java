@@ -3,6 +3,7 @@ package com.clinic.patient.doctor.controller;
 
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.doctor.dto.DoctorResponse;
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.service.DoctorService;
 import com.clinic.patient.user.dto.UserRequestDTO;
@@ -34,10 +35,10 @@ public class DoctorController {
 
     // Get Doctor by ID
     @GetMapping("/{id}/profile")
-    public ResponseEntity<Doctor> getDoctorById(@PathVariable Long id) {
-        return doctorService.getDoctorById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<DoctorResponse> getDoctorById(@PathVariable Long id) {
+        return ResponseEntity.ok( MAP.map(doctorService.getDoctorById(id).orElseThrow(),
+                DoctorResponse::new));
+
     }
 
     @PutMapping("/{id}/profile")
@@ -48,7 +49,8 @@ public class DoctorController {
 
        MAP.copyInTheObject(userRequestDTO,existingDoctorOpt.get().getUser(),"role","password");
           MAP.copyInTheObject(userRequestDTO,existingDoctorOpt.get());
-        return  ResponseEntity.ok(doctorService.updateDoctor(id,existingDoctorOpt.get()));
+            doctorService.updateDoctor(id,existingDoctorOpt.get());
+        return  ResponseEntity.ok().build();
       }else{
               return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));  
       }

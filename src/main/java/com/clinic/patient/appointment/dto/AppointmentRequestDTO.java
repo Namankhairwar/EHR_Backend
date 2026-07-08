@@ -9,7 +9,7 @@ public class AppointmentRequestDTO {
 
     private Long patientId;
     private Long doctorId;
-    private LocalDateTime appointmentTime;
+    private String appointmentTime;
     private Integer duration;
     private String reason;
     private AppointmentStatus status;

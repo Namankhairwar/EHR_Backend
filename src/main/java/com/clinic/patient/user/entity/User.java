@@ -86,7 +86,6 @@ public class User {
                 nullable = false,length =10)
         Long contactPhoneNo;
 
-
     }
 
 
@@ -95,7 +94,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long ehrid;
+    private Long ehrId;
 
     @Column(nullable = false)
     private String firstName;

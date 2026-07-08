@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @ResponseBody
 public class UserResponseDTO {
    private String email;
-   private Long id;
+   private Long ehrId;
    private String firstName;
    private String lastName;
    private long phoneNo;

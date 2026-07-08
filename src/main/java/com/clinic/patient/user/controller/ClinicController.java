@@ -1,7 +1,7 @@
 package com.clinic.patient.user.controller;
 
 import com.clinic.patient.user.entity.Patient;
-import com.clinic.patient.user.service.ClinicServiceImpl;
+import com.clinic.patient.user.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class ClinicController {
 
     @Autowired
-    private ClinicServiceImpl clinicService;
+    private PatientService clinicService;
 
     @GetMapping("/getPatient")
     public List<Patient> getPatient() {
