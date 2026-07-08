@@ -91,8 +91,7 @@ public class User {
 
 
     @Transient
-    public static final DateTimeFormatter obj =
-            DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    public static final DateTimeFormatter obj=DateTimeFormatter.ofPattern("DD-mm-yyyy");
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

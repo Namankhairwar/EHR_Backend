@@ -3,16 +3,14 @@ package com.clinic.patient.appointment.controller;
 
 import com.clinic.patient.appointment.dto.AppointmentRequestDTO;
 import com.clinic.patient.appointment.dto.AppointmentResponseDTO;
-import com.clinic.patient.appointment.service.AppointmentService;
-import com.clinic.patient.appointment.state.AppointmentStatus;
+import com.clinic.patient.appointment.repositories.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/appointments")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
@@ -21,7 +19,8 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    @PostMapping("/appointments")
+    // Create Appointment
+    @PostMapping("")
     public ResponseEntity<AppointmentResponseDTO> createAppointment(
             @RequestBody AppointmentRequestDTO dto) {
 
@@ -30,68 +29,38 @@ public class AppointmentController {
         );
     }
 
-    @GetMapping("/appointments/{appointmentId}")
-    public ResponseEntity<AppointmentResponseDTO> getAppointmentById(
-            @PathVariable Long appointmentId) {
-
+    // Get All Appointments
+    @GetMapping("all")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAllAppointments() {
         return ResponseEntity.ok(
-                appointmentService.getAppointmentById(appointmentId)
+                appointmentService.getAllAppointments()
         );
     }
 
-    @PatchMapping("/appointments/{appointmentId}/reschedule")
-    public ResponseEntity<AppointmentResponseDTO> rescheduleAppointment(
-            @PathVariable Long appointmentId,
+    // Update Appointment
+    @PutMapping("/{id}/reschedule")
+    public ResponseEntity<AppointmentResponseDTO> updateAppointment(
+            @PathVariable Long id,
             @RequestBody AppointmentRequestDTO dto) {
 
         return ResponseEntity.ok(
-                appointmentService.rescheduleAppointment(
-                        appointmentId,
-                        dto
-                )
+                appointmentService.updateAppointment(id, dto)
         );
     }
 
-    @PatchMapping("/appointments/{appointmentId}/cancel")
+    // Cancel Appointment
+    @PatchMapping("/{id}/cancel")
     public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
-            @PathVariable Long appointmentId,
-            @RequestBody AppointmentRequestDTO dto) {
+            @PathVariable Long id) {
 
         return ResponseEntity.ok(
-                appointmentService.cancelAppointment(
-                        appointmentId,
-                        dto
-                )
+                appointmentService.cancelAppointment(id)
         );
     }
 
-    @GetMapping("/patients/{patientId}/appointments")
-    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByPatient(
-            @PathVariable Long patientId,
-            @RequestParam(required = false) AppointmentStatus status,
-            @RequestParam(required = false) Boolean upcoming) {
-
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsByPatient(
-                        patientId,
-                        status,
-                        upcoming
-                )
-        );
-    }
-
-    @GetMapping("/doctors/{doctorId}/appointments")
-    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctor(
-            @PathVariable Long doctorId,
-            @RequestParam(required = false) AppointmentStatus status,
-            @RequestParam(required = false) LocalDate date) {
-
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsByDoctor(
-                        doctorId,
-                        status,
-                        date
-                )
-        );
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+        appointmentService.deleteAppointment(id);
+        return ResponseEntity.noContent().build();
     }
 }
