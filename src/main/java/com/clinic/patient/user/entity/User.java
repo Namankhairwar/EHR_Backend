@@ -135,6 +135,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private BloodGroup bloodGroup;
 
+
     @Transient
     private static PasswordEncoder passwordEncoder;
 

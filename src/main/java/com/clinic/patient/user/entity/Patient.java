@@ -4,9 +4,9 @@ import com.clinic.patient.user.state.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
-/**
- * @author Krishana dubey
- */
+import java.util.List;
+
+
 @Entity
 @Getter
 @Setter
@@ -40,8 +40,13 @@ public class Patient {
     @Column
     private Gender gender;
 
-    @Column
-    private String allergy;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "patient_allergies",
+            joinColumns = @JoinColumn(name = "patient_id")
+    )
+    @Column(name = "allergy")
+    private List<String> allergies;
 
 
 
