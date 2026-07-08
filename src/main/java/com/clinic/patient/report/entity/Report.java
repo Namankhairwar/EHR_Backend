@@ -1,7 +1,7 @@
 //package com.clinic.patient.report.entity;
 //
 //import com.clinic.patient.doctor.entity.Doctor;
-//import com.clinic.patient.user.entity.Patient;
+//import com.clinic.patient.patient.entity.Patient;
 //import jakarta.persistence.*;
 //import lombok.Data;
 //import org.springframework.core.io.Resource;

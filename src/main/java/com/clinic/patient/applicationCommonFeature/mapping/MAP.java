@@ -100,19 +100,7 @@ public class MAP {
        BeanWrapper src = PropertyAccessorFactory.forBeanPropertyAccess(obj1);
        PropertyDescriptor[]  propertyDescriptors = src.getPropertyDescriptors();
         // storing all the methods for removing the missing methods in obj2 with obj1
-        BeanWrapper src2 = PropertyAccessorFactory.forBeanPropertyAccess(obj2);
-        PropertyDescriptor[]  propertyDescriptors2 = src2.getPropertyDescriptors();
-        Set<String> nameOfReceiver = new HashSet<>();
-        Arrays.stream(propertyDescriptors2).
-                map(t-> {
-                    nameOfReceiver.add(t.getName());
-                    String type= t.getPropertyType().getTypeName();
-                    if(type.equals("LocalDate") || type.equals("Date") || type.equals("LocalDateTime")){
-                        empty.add(t.getName());
-                    }
 
-                    return null;
-                });
 
       for(PropertyDescriptor val:propertyDescriptors){
           // since passwordEncoder is not able to give its value
@@ -127,7 +115,7 @@ public class MAP {
           else if(type.equals("LocalDate") || type.equals("Date") || type.equals("LocalDateTime") ){
               empty.add(name);
           }
-        if( src.getPropertyValue(name) == null || !nameOfReceiver.contains(name)){
+        if( src.getPropertyValue(name) == null){
             empty.add(name);
         }
       }

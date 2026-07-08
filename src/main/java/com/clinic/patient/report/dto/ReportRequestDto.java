@@ -1,11 +1,9 @@
 package com.clinic.patient.report.dto;
 
 import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.user.entity.Patient;
-import jakarta.persistence.*;
+import com.clinic.patient.patient.entity.Patient;
 
 import java.io.InputStream;
-import java.time.LocalDate;
 
 public class ReportRequestDto {
     private long id;

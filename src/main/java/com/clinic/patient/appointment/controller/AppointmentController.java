@@ -2,7 +2,6 @@ package com.clinic.patient.appointment.controller;
 
 
 import com.clinic.patient.appointment.dto.AppointmentRequestDTO;
-import com.clinic.patient.appointment.dto.AppointmentResponseDTO;
 import com.clinic.patient.appointment.service.AppointmentService;
 import com.clinic.patient.user.service.UserService;
 import lombok.AllArgsConstructor;

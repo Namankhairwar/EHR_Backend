@@ -4,7 +4,7 @@ import com.clinic.patient.applicationCommonFeature.mapping.db.MedicineDetailsCon
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.medication.repositories.DietInstructionRepository;
 import com.clinic.patient.medication.state.Shift;
-import com.clinic.patient.user.entity.Patient;
+import com.clinic.patient.patient.entity.Patient;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;

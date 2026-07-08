@@ -1,6 +1,7 @@
 package com.clinic.patient.applicationCommonFeature.mapping.db;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -17,12 +18,13 @@ public class  Convertor<T> implements AttributeConverter<List<T>, String> {
     public Convertor(Class<T> ele){
         elementType= ele;
     }
+
     @Override
     public String convertToDatabaseColumn(List<T> o) {
         try {
-            return objectMapper.writeValueAsString(o.toString());
+         return   objectMapper.writeValueAsString(o);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -35,12 +37,12 @@ public class  Convertor<T> implements AttributeConverter<List<T>, String> {
 
             return objectMapper.readValue(
                     dbData,
-                    objectMapper.getTypeFactory()
-                            .constructCollectionType(List.class, elementType)
+                    new TypeReference<List<T>>() {
+                    }
             );
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to deserialize JSON to List", e);
+            throw new RuntimeException("Failed to deserialize JSON to List"+ e.getMessage());
         }
     }
 }

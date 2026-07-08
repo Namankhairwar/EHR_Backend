@@ -7,7 +7,6 @@ import com.clinic.patient.doctor.service.DoctorService;
 import com.clinic.patient.user.dto.UserRequestDTO;
 import com.clinic.patient.user.dto.UserResponseDTO;
 import com.clinic.patient.user.service.UserService;
-import com.clinic.patient.user.state.BloodGroup;
 import org.aspectj.lang.NoAspectBoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,11 +1,8 @@
 package com.clinic.patient.appointment.repositories;
 
-import com.clinic.patient.appointment.dto.AppointmentRequestDTO;
-import com.clinic.patient.appointment.dto.AppointmentResponseDTO;
 import com.clinic.patient.appointment.entity.Appointment;
-import com.clinic.patient.user.entity.Patient;
+import com.clinic.patient.appointment.state.AppointmentStatus;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,9 +17,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Optional<Appointment> getAppointmentById(Long id);
 
 
-  int countAppointmentsByPatient_IdAndStatus_SCHEDULEDOrderByAppointmentTimeDesc(Long id);
+  int countAppointmentsByPatient_IdAndStatusOrderByAppointmentTimeDesc(Long id, AppointmentStatus status);
 
-    List<Appointment> getAllByPatient_IdAndStatus_SCHEDULEDOrderByAppointmentTimeDesc(Long patientId);
+    List<Appointment> getAllByPatient_IdAndStatusOrderByAppointmentTimeDesc(Long patientId, AppointmentStatus status);
 
 
 }

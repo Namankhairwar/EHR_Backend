@@ -8,8 +8,8 @@ import com.clinic.patient.appointment.repositories.AppointmentRepository;
 import com.clinic.patient.appointment.state.AppointmentStatus;
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.service.DoctorService;
-import com.clinic.patient.user.entity.Patient;
-import com.clinic.patient.user.service.PatientService;
+import com.clinic.patient.patient.entity.Patient;
+import com.clinic.patient.patient.service.PatientServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -27,8 +27,8 @@ import java.util.Optional;
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-    private final PatientService patientService;
     private final DoctorService doctorService;
+    private final PatientServiceImpl patientServiceImpl;
 
     public ResponseEntity<?> createAppointment(AppointmentRequestDTO appointmentRequestDTO){
         return getResponseEntity(appointmentRequestDTO);
@@ -40,15 +40,12 @@ public class AppointmentService {
             return ResponseEntity.ofNullable("Doctor does not exist with this id");
         }
         Doctor doctor1 = doctor.get();
-        Optional<Patient> patient = patientService.getPatientById(appointmentRequestDTO.getPatientId());
-        if(patient.isEmpty()){
-            return ResponseEntity.ofNullable("patient does not exist with this id");
-        }
-        Patient patient1= patient.get();
+        Patient patient = patientServiceImpl.getPatient(appointmentRequestDTO.getPatientId());
+
         Appointment appointment = MAP.map(appointmentRequestDTO,Appointment::new);
         appointmentRepository.save(appointment);
 
-        return ResponseEntity.ok(mapping(appointment,doctor1,patient1));
+        return ResponseEntity.ok(mapping(appointment,doctor1,patient));
     }
 
     public ResponseEntity<?> updateAppointment(long id, AppointmentRequestDTO appointmentRequestDTO){
@@ -84,12 +81,12 @@ public class AppointmentService {
     }
 
     public int listCountTodayActiceAppointment(long id){
-        return appointmentRepository.countAppointmentsByPatient_IdAndStatus_SCHEDULEDOrderByAppointmentTimeDesc(id);
+        return appointmentRepository.countAppointmentsByPatient_IdAndStatusOrderByAppointmentTimeDesc(id,AppointmentStatus.SCHEDULED);
     }
 
     @SuppressWarnings("unchecked")
     public List<AppointmentResponseDTO> listAllTodayActiceAppointment(long id){
-        return (List<AppointmentResponseDTO>) appointmentRepository.getAllByPatient_IdAndStatus_SCHEDULEDOrderByAppointmentTimeDesc(id)
+        return (List<AppointmentResponseDTO>) appointmentRepository.getAllByPatient_IdAndStatusOrderByAppointmentTimeDesc(id,AppointmentStatus.SCHEDULED)
                 .stream().map(t-> mapping(t,t.getDoctor(),t.getPatient()));
     }
 
@@ -115,32 +112,16 @@ public class AppointmentService {
     }
 
 
-    public ResponseEntity<Void> deleteAppointment(long id){
+    public ResponseEntity<Void> deleteAppointment(long id) {
         Optional<Appointment> appointmentById = appointmentRepository.getAppointmentById(id);
-        if(appointmentById.isEmpty()){
-          return  ResponseEntity.notFound().build();
+        if (appointmentById.isEmpty()) {
+            return ResponseEntity.notFound().build();
 
         }
 
         appointmentRepository.deleteById(id);
-      return  ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

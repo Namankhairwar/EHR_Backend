@@ -2,7 +2,7 @@ package com.clinic.patient.appointment.entity;
 
 import com.clinic.patient.appointment.state.AppointmentStatus;
 import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.user.entity.Patient;
+import com.clinic.patient.patient.entity.Patient;
 import jakarta.persistence.*;
 import lombok.*;
 

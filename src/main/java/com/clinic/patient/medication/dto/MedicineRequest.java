@@ -1,9 +1,7 @@
 package com.clinic.patient.medication.dto;
 
-import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.medication.entity.DietInstruction;
 import com.clinic.patient.medication.entity.Medicine;
-import com.clinic.patient.user.entity.Patient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;

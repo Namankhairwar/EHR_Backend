@@ -1,7 +1,7 @@
 package com.clinic.patient.report.dto;
 
 import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.user.entity.Patient;
+import com.clinic.patient.patient.entity.Patient;
 
 import java.io.InputStream;
 

@@ -1,7 +1,6 @@
 package com.clinic.patient.doctor.entity;
 
 import com.clinic.patient.applicationCommonFeature.mapping.db.StringConvert;
-import com.clinic.patient.medication.entity.Medicine;
 import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,12 +39,12 @@ public class Doctor {
     @AllArgsConstructor
     public static class DoctorProfile{
 
-        private java.lang.String specialization;
-        private java.lang.String licenseNumber;
+        private String specialization;
+        private String licenseNumber;
 
         @Convert(converter = StringConvert.class)
         @Column(columnDefinition = "TEXT")
-        private List<java.lang.String> degrees;
+        private List<String> degrees;
     }
 
     @Embedded

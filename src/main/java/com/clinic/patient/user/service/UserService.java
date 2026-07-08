@@ -20,8 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,23 +82,16 @@ public class UserService {
 
 
     /**
-     *
      * @param loginRequest
      * @return
-     *
-     * @implNote
-     *       Tries to find the user
-     *              @return Empty if no user found
-     *       check the request password with the actual password
-     *              @return Unauthorized if found unequal
-     *
-     *      @return grant the access
-     *      Exception : caused Internal_Server_Error
+     * @return Empty if no user found
+     * check the request password with the actual password
+     * @return Unauthorized if found unequal
+     * @return grant the access
+     * Exception : caused Internal_Server_Error
+     * @implNote Tries to find the user
      */
-    public boolean doesUserExist(long id){
-        Optional<User> byId = userRepository.findById(id);
-        return !byId.isEmpty();
-    }
+
     public ResponseEntity<?> login(LoginRequest loginRequest) {
         // Find user by email
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
@@ -130,7 +121,10 @@ public class UserService {
 
     }
 
-
+    public boolean doesUserExist(long id){
+        Optional<User> byId = userRepository.findById(id);
+        return byId.isPresent();
+    }
     public ResponseEntity<?> register(UserRequestDTO dto) {
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -138,10 +132,12 @@ public class UserService {
                     .status(HttpStatus.ALREADY_REPORTED)
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
+        log.info(dto.toString());
         User user = MAP.map(dto, User::new);
+        log.info(user.toString());
         User saved = userRepository.save(user);
 
-        UserResponseDTO responseDTO = MAP.map(dto, UserResponseDTO::new);
+        UserResponseDTO responseDTO = MAP.map(saved, UserResponseDTO::new);
 
         TokenResponse tokenResponse = new TokenResponse(
                 jwtService.generateNewToken(saved.getEmail()),
