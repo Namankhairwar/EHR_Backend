@@ -9,7 +9,7 @@ A robust Electronic Health Record (EHR) Management System backend built using Sp
 * Patient Record Management
 * Appointment Scheduling
 * Medical History Management
-* RESTful API Architecture
+* RESTFul API Architecture
 * Database Integration with JPA/Hibernate
 * Exception Handling & Validation
 * Scalable Layered Architecture
@@ -30,15 +30,15 @@ A robust Electronic Health Record (EHR) Management System backend built using Sp
 
 ```text
 src
- ├── controller
- ├── service
- ├── repository
- ├── entity
- ├── dto
- ├── security
  ├── config
+ ├── controller
+ ├── entity
  ├── exception
- └── util
+ ├── model
+ ├── repository
+ ├── role
+ ├── security
+ ├── service
 ```
 
 ## ⚙️ Installation
@@ -46,7 +46,7 @@ src
 ### Clone Repository
 
 ```bash
-git clone https://github.com/Namankhairwar/EHR_Backend.git
+git clone https://github.com/Vans-Co/EHR_Backend
 cd EHR_Backend
 ```
 
@@ -55,9 +55,9 @@ cd EHR_Backend
 Update `application.properties`
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/ehr_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:postgresql://db.ocbxteztnmvkfdoiidco.supabase.co:5432/clinic
+spring.datasource.username=postgres
+spring.datasource.password=SkyBags@2026
 ```
 
 ### Build Project
@@ -75,7 +75,7 @@ mvn spring-boot:run
 Application will start at:
 
 ```text
-http://localhost:8080
+http://localhost:8086
 ```
 
 ## 🔐 Authentication
@@ -149,6 +149,3 @@ mvn test
 * Portfolio: https://v0-khairwarnaman.vercel.app/
 * GitHub: https://github.com/Namankhairwar
 
-## 📄 License
-
-This project is developed for educational and learning purposes.
