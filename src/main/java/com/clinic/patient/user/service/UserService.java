@@ -135,7 +135,7 @@ public class UserService {
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
         User user = MAP.map(dto, User::new);
-        user.setDob(LocalDate.parse(dto.getDob()));
+        user.setDob(LocalDate.parse(dto.getDob(),User.obj));
         User saved = userRepository.save(user);
 
         UserResponseDTO responseDTO = MAP.map(dto, UserResponseDTO::new);
