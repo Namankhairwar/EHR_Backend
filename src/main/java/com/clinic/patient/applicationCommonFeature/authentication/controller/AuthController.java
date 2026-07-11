@@ -3,6 +3,7 @@ package com.clinic.patient.applicationCommonFeature.authentication.controller;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.auth.AuthResponse;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginRequest;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.jwt.TokenResponse;
+import com.clinic.patient.applicationCommonFeature.authentication.service.VerificationTokenService;
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.clinic.patient.security.jwt.JwtService;
@@ -25,11 +26,16 @@ public class AuthController {
     private final JwtService jwtService;
     private final DoctorService doctorService;
     private final UserService userService;
+
+    private final VerificationTokenService verificationTokenService;
+
     @Autowired
-    public AuthController(JwtService jwtService ,DoctorService doctorService , UserService userService){
+    public AuthController(JwtService jwtService ,DoctorService doctorService , UserService userService, VerificationTokenService verificationTokenService){
         this.doctorService =doctorService;
         this.jwtService = jwtService;
         this.userService = userService;
+        this.verificationTokenService = verificationTokenService;
+
     }
     /**
      *
@@ -53,6 +59,32 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(GlobalExceptionHandler.internalError(new InternalException(e.getLocalizedMessage())));
         }}
+
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token){
+
+        try {
+
+            verificationTokenService.verifyToken(token);
+
+
+            return ResponseEntity.ok(
+                    "Email verified successfully. You can login now."
+            );
+
+
+        }catch(Exception e){
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+
+        }
+
+    }
+
+
 
 
     /**
