@@ -110,6 +110,12 @@ public class User {
 
 
     private String password;
+
+    // add email attribute, to verify email after register
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
