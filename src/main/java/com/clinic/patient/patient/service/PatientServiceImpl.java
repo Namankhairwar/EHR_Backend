@@ -1,17 +1,18 @@
 package com.clinic.patient.patient.service;
 
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
-import com.clinic.patient.patient.dto.PatientAllergiesDTO;
+import com.clinic.patient.patient.dto.AllergyResponseDTO;
 import com.clinic.patient.patient.dto.PatientOverviewResponseDTO;
 import com.clinic.patient.patient.entity.Patient;
-import com.clinic.patient.patient.repositories.PatientService;
-import com.clinic.patient.user.entity.User;
+import com.clinic.patient.patient.repositories.AllergyRepository;
 import com.clinic.patient.patient.repositories.PatientRepository;
+import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -19,21 +20,33 @@ public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
     private final UserRepository userRepository;
+    private final AllergyRepository allergyRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public PatientOverviewResponseDTO getPatientOverview(Long patientId) {
 
         Patient patient = getPatient(patientId);
         User user = getLinkedUser(patient);
 
+        List<AllergyResponseDTO> allergies =
+                allergyRepository.findAllByPatient_Id(patientId)
+                        .stream()
+                        .map(allergy ->
+                                MAP.map(
+                                        allergy,
+                                        AllergyResponseDTO::new,
+                                        "patient",
+                                        "allergyType"
+                                )
+                        )
+                        .toList();
+
         return PatientOverviewResponseDTO.builder()
-                .emergencyContact(user.getEmergencyContact())
+                .ehrid(String.valueOf(user.getEhrId()))
                 .bloodGroup(user.getBloodGroup())
-                .allergies(
-                        patient.getAllergies() == null
-                                ? new ArrayList<>()
-                                : patient.getAllergies()
-                )
+                .allergies(allergies)
+                .emergencyContact(user.getEmergencyContact())
                 .build();
     }
 
@@ -52,41 +65,17 @@ public class PatientServiceImpl implements PatientService {
         return getPatientOverview(patientId);
     }
 
-    @Override
-    public PatientAllergiesDTO getPatientAllergies(Long patientId) {
-
-        Patient patient = getPatient(patientId);
-
-        return PatientAllergiesDTO.builder()
-                .allergies(
-                        patient.getAllergies() == null
-                                ? new ArrayList<>()
-                                : patient.getAllergies()
-                )
-                .build();
-    }
-
-    @Override
-    public PatientAllergiesDTO updatePatientAllergies(
-            Long patientId,
-            PatientAllergiesDTO dto
-    ) {
-
-        Patient patient = getPatient(patientId);
-
-        patient.setAllergies(dto.getAllergies());
-        patientRepository.save(patient);
-
-        return MAP.map(dto, PatientAllergiesDTO::new);
-    }
-
     public Patient getPatient(Long patientId) {
         return patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Patient not found")
+                );
     }
 
     private User getLinkedUser(Patient patient) {
-        return userRepository.findByEmail(patient.getUser().getEmail())
-                .orElseThrow(() -> new RuntimeException("Linked user not found"));
+        return userRepository.findByEmail(patient.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("Linked user not found")
+                );
     }
 }

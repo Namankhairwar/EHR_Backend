@@ -1,6 +1,5 @@
-package com.clinic.patient.patient.repositories;
+package com.clinic.patient.patient.service;
 
-import com.clinic.patient.patient.dto.PatientAllergiesDTO;
 import com.clinic.patient.patient.dto.PatientOverviewResponseDTO;
 import com.clinic.patient.user.entity.User;
 
@@ -13,10 +12,4 @@ public interface PatientService {
             User.Emergency emergencyContact
     );
 
-    PatientAllergiesDTO getPatientAllergies(Long patientId);
-
-    PatientAllergiesDTO updatePatientAllergies(
-            Long patientId,
-            PatientAllergiesDTO dto
-    );
 }

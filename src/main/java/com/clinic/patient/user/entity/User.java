@@ -94,6 +94,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "ehrid")
     private Long ehrId;
 
     @Column(nullable = false)
