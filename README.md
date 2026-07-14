@@ -88,9 +88,9 @@ The application uses JWT (JSON Web Token) authentication.
 2. Receive JWT Token
 3. Include token in request header
 
-```http
+
 Authorization: Bearer <your-token>
-```
+
 
 ## 📌 API Modules
 
