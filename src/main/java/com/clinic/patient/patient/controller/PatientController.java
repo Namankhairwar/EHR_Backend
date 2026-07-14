@@ -1,24 +1,31 @@
 package com.clinic.patient.patient.controller;
 
-import com.clinic.patient.patient.dto.PatientAllergiesDTO;
+import com.clinic.patient.patient.dto.AllergyRequestDTO;
+import com.clinic.patient.patient.dto.AllergyResponseDTO;
 import com.clinic.patient.patient.dto.PatientOverviewResponseDTO;
+import com.clinic.patient.patient.service.AllergyService;
+import com.clinic.patient.patient.service.PatientService;
 import com.clinic.patient.user.entity.User;
-import com.clinic.patient.patient.repositories.PatientService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/patients")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PatientController {
 
     private final PatientService patientService;
+    private final AllergyService allergyService;
 
     @GetMapping("/{patientId}/overview")
     public ResponseEntity<PatientOverviewResponseDTO> getPatientOverview(
             @PathVariable Long patientId
     ) {
+
         return ResponseEntity.ok(
                 patientService.getPatientOverview(patientId)
         );
@@ -29,27 +36,47 @@ public class PatientController {
             @PathVariable Long patientId,
             @RequestBody User.Emergency emergencyContact
     ) {
+
         return ResponseEntity.ok(
-                patientService.updateEmergencyContact(patientId, emergencyContact)
+                patientService.updateEmergencyContact(
+                        patientId,
+                        emergencyContact
+                )
         );
+    }
+
+    @PostMapping("/{patientId}/allergies")
+    public ResponseEntity<AllergyResponseDTO> createAllergy(
+            @PathVariable Long patientId,
+            @RequestBody AllergyRequestDTO dto
+    ) {
+
+        AllergyResponseDTO response =
+                allergyService.createAllergy(patientId, dto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @GetMapping("/{patientId}/allergies")
-    public ResponseEntity<PatientAllergiesDTO> getPatientAllergies(
+    public ResponseEntity<List<AllergyResponseDTO>> getPatientAllergies(
             @PathVariable Long patientId
     ) {
+
         return ResponseEntity.ok(
-                patientService.getPatientAllergies(patientId)
+                allergyService.getPatientAllergies(patientId)
         );
     }
 
-    @PutMapping("/{patientId}/allergies")
-    public ResponseEntity<PatientAllergiesDTO> updatePatientAllergies(
+    @DeleteMapping("/{patientId}/allergies/{allergyId}")
+    public ResponseEntity<Void> deleteAllergy(
             @PathVariable Long patientId,
-            @RequestBody PatientAllergiesDTO dto
+            @PathVariable Long allergyId
     ) {
-        return ResponseEntity.ok(
-                patientService.updatePatientAllergies(patientId, dto)
-        );
+
+        allergyService.deleteAllergy(patientId, allergyId);
+
+        return ResponseEntity.noContent().build();
     }
 }

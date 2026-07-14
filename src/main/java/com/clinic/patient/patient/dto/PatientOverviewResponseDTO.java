@@ -12,7 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientOverviewResponseDTO {
+
+    private String ehrid;
     private User.Emergency emergencyContact;
-    private List<String> allergies;
+    private List<AllergyResponseDTO> allergies;
     private BloodGroup bloodGroup;
 }
