@@ -13,13 +13,13 @@ import java.util.Optional;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
 
-    List<Appointment> getAllByPatient_Id(Long patientId, Pageable pageable);
     Optional<Appointment> getAppointmentById(Long id);
 
 
-  int countAppointmentsByPatient_IdAndStatusOrderByAppointmentTimeDesc(Long id, AppointmentStatus status);
+  int countAppointmentsByPatient_EhrIdAndStatusOrderByAppointmentTimeDesc(Long id, AppointmentStatus status);
 
-    List<Appointment> getAllByPatient_IdAndStatusOrderByAppointmentTimeDesc(Long patientId, AppointmentStatus status);
+    List<Appointment> getAllByPatient_EhrIdAndStatusOrderByAppointmentTimeDesc(Long patientId, AppointmentStatus status);
 
 
+    List<Appointment> getAllByPatient_EhrId(Long patientEhrId, Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package com.clinic.patient.user.entity;
 
+import com.clinic.patient.patient.entity.Allergy;
 import com.clinic.patient.user.state.BloodGroup;
 import com.clinic.patient.user.state.Gender;
 import com.clinic.patient.applicationCommonFeature.state.Role;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -134,6 +137,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     private BloodGroup bloodGroup;
 
+
+    @OneToMany(
+            mappedBy = "patient",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Allergy> allergies = new ArrayList<>();
 
     @Transient
     private static PasswordEncoder passwordEncoder;

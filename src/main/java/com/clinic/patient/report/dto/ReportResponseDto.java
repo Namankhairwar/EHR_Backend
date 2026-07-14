@@ -1,13 +1,12 @@
 package com.clinic.patient.report.dto;
 
 import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.patient.entity.Patient;
 
 import java.io.InputStream;
 
 public class ReportResponseDto {
     private long id;
-    private Patient patient_id;
+    private Long patient_id;
     private Doctor doctor_id;
     private String date_time;
     private String info;

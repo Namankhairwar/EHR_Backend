@@ -4,9 +4,8 @@ import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.patient.dto.AllergyRequestDTO;
 import com.clinic.patient.patient.dto.AllergyResponseDTO;
 import com.clinic.patient.patient.entity.Allergy;
-import com.clinic.patient.patient.entity.Patient;
 import com.clinic.patient.patient.repositories.AllergyRepository;
-import com.clinic.patient.patient.repositories.PatientRepository;
+import com.clinic.patient.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,6 @@ import java.util.List;
 public class AllergyServiceImpl implements AllergyService {
 
     private final AllergyRepository allergyRepository;
-    private final PatientRepository patientRepository;
 
     @Override
     @Transactional
@@ -27,14 +25,10 @@ public class AllergyServiceImpl implements AllergyService {
             AllergyRequestDTO dto
     ) {
 
-        Patient patient = getPatient(patientId);
 
-        boolean alreadyExists =
-                allergyRepository
-                        .existsByPatient_IdAndAllergenNameIgnoreCase(
-                                patientId,
-                                dto.getAllergenName()
-                        );
+
+        boolean alreadyExists =check(patientId,dto);
+
 
         if (alreadyExists) {
             throw new RuntimeException(
@@ -43,20 +37,28 @@ public class AllergyServiceImpl implements AllergyService {
         }
 
         Allergy allergy = MAP.map(dto, Allergy::new);
-        allergy.setPatient(patient);
-
+        User user  =new User();
+        user.setEhrId(patientId);
+        allergy.setPatient(user);
         Allergy savedAllergy = allergyRepository.save(allergy);
 
         return mapToResponse(savedAllergy);
     }
 
     @Override
+    public boolean check(long patientId , AllergyRequestDTO dto){
+      return  allergyRepository
+                .existsByPatient_EhrIdAndAllergenNameIgnoreCase(
+                        patientId,
+                        dto.getAllergenName()
+                );
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<AllergyResponseDTO> getPatientAllergies(Long patientId) {
 
-        getPatient(patientId);
-
-        return allergyRepository.findAllByPatient_Id(patientId)
+        return allergyRepository.findAllByPatient_EhrId(patientId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -70,7 +72,7 @@ public class AllergyServiceImpl implements AllergyService {
     ) {
 
         Allergy allergy = allergyRepository
-                .findByIdAndPatient_Id(allergyId, patientId)
+                .findByallergyidAndPatient_EhrId(allergyId, patientId)
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Allergy not found for patient"
@@ -80,23 +82,12 @@ public class AllergyServiceImpl implements AllergyService {
         allergyRepository.delete(allergy);
     }
 
-    private Patient getPatient(Long patientId) {
-
-        return patientRepository.findById(patientId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Patient not found with id: " + patientId
-                        )
-                );
-    }
 
     private AllergyResponseDTO mapToResponse(Allergy allergy) {
 
         return MAP.map(
                 allergy,
-                AllergyResponseDTO::new,
-                "patient",
-                "allergyType"
+                AllergyResponseDTO::new
         );
     }
 }

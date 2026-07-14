@@ -2,6 +2,7 @@ package com.clinic.patient.patient.entity;
 
 import com.clinic.patient.patient.state.AllergyType;
 import com.clinic.patient.patient.state.Severity;
+import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,16 +10,14 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "patient_allergies")
-@Getter
-@Setter
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Allergy {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long allergyid;
 
     @Column(name = "allergen_name", nullable = false)
     private String allergenName;
@@ -39,5 +38,5 @@ public class Allergy {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    private User patient;
 }

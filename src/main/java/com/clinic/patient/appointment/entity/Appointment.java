@@ -2,7 +2,7 @@ package com.clinic.patient.appointment.entity;
 
 import com.clinic.patient.appointment.state.AppointmentStatus;
 import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.patient.entity.Patient;
+import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,9 +21,9 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Patient.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity =User.class)
     @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    private User patient;
 
     @ManyToOne(fetch = FetchType.LAZY,targetEntity = Doctor.class)
     @JoinColumn(name = "doctor_id", nullable = false )

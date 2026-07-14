@@ -28,7 +28,7 @@ public class MedicineService {
         Pageable pageable = PageRequest.of(number, size, sort);
         return (Page<MedicineResponse>)
                 medicineRepository.
-                        findAllByPatient_IdOrderByPrescribedOn(id,pageable).
+                        findAllByPatient_EhrIdOrderByPrescribedOn(id,pageable).
                         stream()
                         .map(t-> MAP.map(t,MedicineResponse::new)
                         )
@@ -47,7 +47,7 @@ public class MedicineService {
         Pageable pageable = PageRequest.of(number, size, sort);
         return (Page<MedicineResponse>)
                 medicineRepository.
-                        findAllByPatient_IdAndDetailsIsActiveTrue
+                        findAllByPatient_EhrIdAndDetailsIsActiveTrue
                                 (id,true,pageable).
                         stream().
                         map(t->MAP.map(t, MedicineResponse::new));
@@ -60,7 +60,7 @@ public class MedicineService {
         Pageable pageable = PageRequest.of(number, size, sort);
         return (Page<MedicineResponse>)
                 medicineRepository.
-                        findAllByPatient_IdAndDetailsIsActiveTrue
+                        findAllByPatient_EhrIdAndDetailsIsActiveTrue
                                 (id,false,pageable).
                         stream().
                         map(t->MAP.map(t, MedicineResponse::new));
@@ -72,7 +72,7 @@ public class MedicineService {
 
    public MedicineResponse getDietByPatient(long id){
         return MAP.
-                map(medicineRepository.getDietByPatient_id(id),MedicineResponse::new);
+                map(medicineRepository.getDietByPatient_EhrId(id),MedicineResponse::new);
    }
     // update flexible use for diet and medicine request as well use for other updates
    public void updateByPatient(MedicineRequest request, long id){
