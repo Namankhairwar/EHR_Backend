@@ -21,5 +21,5 @@ public class AllergyRequestDTO {
 
     private String reaction;
 
-    private LocalDate diagnosedOn;
+    private String diagnosedOn;
 }

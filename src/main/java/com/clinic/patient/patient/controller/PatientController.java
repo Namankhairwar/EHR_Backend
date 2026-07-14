@@ -2,10 +2,7 @@ package com.clinic.patient.patient.controller;
 
 import com.clinic.patient.patient.dto.AllergyRequestDTO;
 import com.clinic.patient.patient.dto.AllergyResponseDTO;
-import com.clinic.patient.patient.dto.PatientOverviewResponseDTO;
 import com.clinic.patient.patient.service.AllergyService;
-import com.clinic.patient.patient.service.PatientService;
-import com.clinic.patient.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,32 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PatientController {
 
-    private final PatientService patientService;
+
     private final AllergyService allergyService;
 
-    @GetMapping("/{patientId}/overview")
-    public ResponseEntity<PatientOverviewResponseDTO> getPatientOverview(
-            @PathVariable Long patientId
-    ) {
 
-        return ResponseEntity.ok(
-                patientService.getPatientOverview(patientId)
-        );
-    }
 
-    @PutMapping("/{patientId}/emergency-contact")
-    public ResponseEntity<PatientOverviewResponseDTO> updateEmergencyContact(
-            @PathVariable Long patientId,
-            @RequestBody User.Emergency emergencyContact
-    ) {
-
-        return ResponseEntity.ok(
-                patientService.updateEmergencyContact(
-                        patientId,
-                        emergencyContact
-                )
-        );
-    }
 
     @PostMapping("/{patientId}/allergies")
     public ResponseEntity<AllergyResponseDTO> createAllergy(

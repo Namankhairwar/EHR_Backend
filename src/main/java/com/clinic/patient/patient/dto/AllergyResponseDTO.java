@@ -1,5 +1,6 @@
 package com.clinic.patient.patient.dto;
 
+import com.clinic.patient.patient.state.AllergyType;
 import com.clinic.patient.patient.state.Severity;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AllergyResponseDTO {
 
-    private Long id;
+    private Long allergyId;
 
     private String allergenName;
 
@@ -20,5 +21,6 @@ public class AllergyResponseDTO {
 
     private String reaction;
 
-    private LocalDate diagnosedOn;
+    private String diagnosedOn;
+    private AllergyType allergyType;
 }
