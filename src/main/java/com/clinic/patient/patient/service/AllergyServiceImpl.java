@@ -27,12 +27,8 @@ public class AllergyServiceImpl implements AllergyService {
 
 
 
-        boolean alreadyExists =
-                allergyRepository
-                        .existsByPatient_EhrIdAndAllergenNameIgnoreCase(
-                                patientId,
-                                dto.getAllergenName()
-                        );
+        boolean alreadyExists =check(patientId,dto);
+
 
         if (alreadyExists) {
             throw new RuntimeException(
@@ -47,6 +43,15 @@ public class AllergyServiceImpl implements AllergyService {
         Allergy savedAllergy = allergyRepository.save(allergy);
 
         return mapToResponse(savedAllergy);
+    }
+
+    @Override
+    public boolean check(long patientId , AllergyRequestDTO dto){
+      return  allergyRepository
+                .existsByPatient_EhrIdAndAllergenNameIgnoreCase(
+                        patientId,
+                        dto.getAllergenName()
+                );
     }
 
     @Override

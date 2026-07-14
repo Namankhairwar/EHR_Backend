@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AllergyResponseDTO {
 
-    private Long allergyId;
+    private Long allergyid;
 
     private String allergenName;
 

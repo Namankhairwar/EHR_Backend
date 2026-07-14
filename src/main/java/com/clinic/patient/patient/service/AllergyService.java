@@ -18,4 +18,6 @@ public interface AllergyService {
             Long patientId,
             Long allergyId
     );
+
+   boolean check(long patientId , AllergyRequestDTO dto);
 }
