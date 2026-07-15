@@ -48,10 +48,7 @@ public class AllergyServiceImpl implements AllergyService {
     @Override
     public boolean check(long patientId , AllergyRequestDTO dto){
       return  allergyRepository
-                .existsByPatient_EhrIdAndAllergenNameIgnoreCase(
-                        patientId,
-                        dto.getAllergenName()
-                );
+                .existsByPatient_EhrIdAndAllergyType(patientId , dto.getAllergyType());
     }
 
     @Override

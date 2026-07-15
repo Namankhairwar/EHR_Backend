@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
@@ -55,6 +56,9 @@ public class MAP {
                   method.invoke(obj2,LocalDateTime.parse(invoke,DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss")));
              else if(descriptor.getPropertyType().getName().equals(Date.class.getName()))
                   method.invoke(obj2,Date.parse(invoke));
+             else if(descriptor.getPropertyType().getName().equals(LocalTime.class.getName()))
+                 method.invoke(obj2,LocalTime.parse(invoke,DateTimeFormatter.ofPattern("HH:mm:ss")));
+
           }
         }
     }
@@ -74,7 +78,7 @@ public class MAP {
     private static void addLocalDate(Set<PropertyDescriptor> empty, PropertyDescriptor[] propertyDescriptors1) {
         for(PropertyDescriptor t:propertyDescriptors1){
             String type= t.getPropertyType().getTypeName();
-            if(type.equals(LocalDate.class.getName()) || type.equals(Date.class.getName()) || type.equals(LocalDateTime.class.getName())){
+            if(type.equals(LocalDate.class.getName()) || type.equals(Date.class.getName()) || type.equals(LocalDateTime.class.getName()) || type.equals(LocalTime.class.getName())){
                 empty.add(t);
             }
         }
@@ -110,10 +114,6 @@ public class MAP {
           if(name.equals("passwordEncoder")){
               empty.add(name);
               continue;
-          }
-
-          else if(type.equals("LocalDate") || type.equals("Date") || type.equals("LocalDateTime") ){
-              empty.add(name);
           }
         if( src.getPropertyValue(name) == null){
             empty.add(name);

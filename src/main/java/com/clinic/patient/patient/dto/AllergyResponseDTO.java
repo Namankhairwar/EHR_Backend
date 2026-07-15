@@ -15,12 +15,12 @@ public class AllergyResponseDTO {
 
     private Long allergyid;
 
-    private String allergenName;
+    private String category;
+
+    private String items;
+    private AllergyType allergyType;
 
     private Severity severity;
 
-    private String reaction;
-
-    private String diagnosedOn;
-    private AllergyType allergyType;
+    private String description;
 }

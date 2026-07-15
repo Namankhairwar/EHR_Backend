@@ -11,7 +11,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("api")
+@RestController
+@RequestMapping("api")
 @AllArgsConstructor
 public class MedicineController {
 

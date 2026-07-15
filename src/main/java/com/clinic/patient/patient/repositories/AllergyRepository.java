@@ -1,6 +1,7 @@
 package com.clinic.patient.patient.repositories;
 
 import com.clinic.patient.patient.entity.Allergy;
+import com.clinic.patient.patient.state.AllergyType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,10 +15,8 @@ public interface AllergyRepository extends JpaRepository<Allergy, Long> {
 
     Optional<Allergy> findByallergyidAndPatient_EhrId(Long allergyid, Long patientId);
 
-    boolean existsByPatient_EhrIdAndAllergenNameIgnoreCase(
-            Long patientId,
-            String allergenName
-    );
 
     Optional<Allergy> findByallergyid(long id);
+
+    boolean existsByPatient_EhrIdAndAllergyType(Long patientEhrId, AllergyType allergyType);
 }

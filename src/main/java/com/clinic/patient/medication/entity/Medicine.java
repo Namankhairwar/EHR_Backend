@@ -38,7 +38,7 @@ public class Medicine {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL , targetEntity = User.class)
     private User patient;
 
-    @ManyToOne(fetch = FetchType.LAZY , targetEntity = DietInstruction.class)
+    @ManyToOne(fetch = FetchType.LAZY , targetEntity = DietInstruction.class,cascade = CascadeType.ALL)
     @Lazy
     private DietInstruction diet;
 

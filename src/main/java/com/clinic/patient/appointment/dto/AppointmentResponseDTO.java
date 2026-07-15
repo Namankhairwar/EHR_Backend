@@ -2,20 +2,22 @@ package com.clinic.patient.appointment.dto;
 
 import com.clinic.patient.appointment.state.AppointmentStatus;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppointmentResponseDTO {
 
+    private long token;
     private long patientId;
     private long doctorId;
-    private String appointmentTime;
-    private Integer duration;
-    private String reason;
+    private String date;
+    private String startTime;
+    private String lastTime;
+    private Long charge;
     private AppointmentStatus status;
+    private Long total_seat;
+    private Long available_seat;
 }

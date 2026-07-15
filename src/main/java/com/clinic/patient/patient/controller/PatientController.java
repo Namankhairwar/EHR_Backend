@@ -28,13 +28,11 @@ public class PatientController {
             @PathVariable Long patientId,
             @RequestBody AllergyRequestDTO dto
     ) {
-
-        AllergyResponseDTO response =
-                allergyService.createAllergy(patientId, dto);
+       allergyService.createAllergy(patientId, dto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .build();
     }
 
 

@@ -1,6 +1,7 @@
 package com.clinic.patient.medication.entity;
 
 import com.clinic.patient.doctor.entity.Doctor;
+import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,7 +17,12 @@ public class DietInstruction {
    private String food_description;
 
    @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.ALL , targetEntity = Doctor.class)
-   @JoinColumn(name="doc_id")
+   @JoinColumn(name="doc_id" , referencedColumnName = "ehrid")
     private Doctor prescribeBy;
 
+
+   @ManyToOne(targetEntity = User.class)
+   @JoinColumn(name= "patientId",referencedColumnName ="ehrid" )
+
+    private User patientId;
 }

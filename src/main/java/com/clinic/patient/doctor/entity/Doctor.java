@@ -25,7 +25,7 @@ public class Doctor {
 
 
     @OneToOne(targetEntity = User.class,fetch=FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinColumn(name = "ehr_id")
+    @JoinColumn(referencedColumnName = "ehrid" ,name="ehrid")
     @MapsId
     private User user;
 
@@ -50,6 +50,11 @@ public class Doctor {
     @Embedded
     private DoctorProfile doctorProfile;
 
+
+
+//    @OneToOne(fetch = FetchType.LAZY ,cascade = CascadeType.MERGE  , orphanRemoval = true)
+//    @JoinColumn(referencedColumnName = "id")
+//    private AppointmentTime appointmentTime;
 
 
 }

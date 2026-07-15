@@ -16,11 +16,14 @@ import java.time.LocalDate;
 public class Allergy {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long allergyid;
 
-    @Column(name = "allergen_name", nullable = false)
-    private String allergenName;
+    @Column
+    private String category;
+    @Column
+    private String items;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "allergy_type", nullable = false)
@@ -29,12 +32,8 @@ public class Allergy {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Severity severity;
-
-    @Column(nullable = false)
-    private String reaction;
-
-    @Column(name = "diagnosed_on", nullable = false)
-    private LocalDate diagnosedOn;
+    @Column(length = 1000)
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "patient_id", nullable = false)

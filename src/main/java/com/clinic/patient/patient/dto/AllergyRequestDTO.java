@@ -13,13 +13,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AllergyRequestDTO {
 
-    private String allergenName;
+    private String category;
 
+    private String items;
     private AllergyType allergyType;
 
     private Severity severity;
 
-    private String reaction;
-
-    private String diagnosedOn;
+    private String description;
 }
