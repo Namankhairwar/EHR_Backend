@@ -57,7 +57,7 @@ public class MedicineController {
     }
 
     @PostMapping("patients/medications")
-    public ResponseEntity<Void> addMedication( MedicineRequest request){
+    public ResponseEntity<Void> addMedication(@RequestBody MedicineRequest request){
         medicineService
                 .save(MAP.map(request,Medicine::new));
         return ResponseEntity.ok().build();

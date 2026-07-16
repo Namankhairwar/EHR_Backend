@@ -1,16 +1,22 @@
 package com.clinic.patient.report.dto;
 
-import com.clinic.patient.doctor.entity.Doctor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.InputStream;
+import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReportRequestDto {
-    private long id;
-    private Long patient_id;
-    private Doctor doctor_id;
-    private String date_time;
+    private List<Long> patientIds;
+    private Long doctorId;
+    private String dateTime;
     private String info;
     private String desc;
     private String conclusion;
-    private InputStream report;
+    private String fileBase64;
+    private String fileName;
+    private String fileType;
 }

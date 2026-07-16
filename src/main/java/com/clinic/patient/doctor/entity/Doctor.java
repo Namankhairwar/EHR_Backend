@@ -23,13 +23,10 @@ public class Doctor {
     @Id
     private Long id;
 
-
-    @OneToOne(targetEntity = User.class,fetch=FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinColumn(referencedColumnName = "ehrid" ,name="ehrid")
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(referencedColumnName = "ehrid", name = "ehrid")
     @MapsId
     private User user;
-
-
 
     @Embeddable
     @ToString
@@ -37,10 +34,21 @@ public class Doctor {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class DoctorProfile{
+    public static class DoctorProfile {
+
+        // Explicitly added Aadhaar and PAN for the Doctor
+        @Column(name = "aadhaar_number", unique = true)
+        private String aadhaarNumber;
+
+        @Column(name = "pan_number", unique = true)
+        private String panNumber;
 
         private String specialization;
+
         private String licenseNumber;
+
+        @Column(columnDefinition = "TEXT")
+        private String aboutDoctor;
 
         @Convert(converter = StringConvert.class)
         @Column(columnDefinition = "TEXT")
@@ -49,12 +57,5 @@ public class Doctor {
 
     @Embedded
     private DoctorProfile doctorProfile;
-
-
-
-//    @OneToOne(fetch = FetchType.LAZY ,cascade = CascadeType.MERGE  , orphanRemoval = true)
-//    @JoinColumn(referencedColumnName = "id")
-//    private AppointmentTime appointmentTime;
-
 
 }

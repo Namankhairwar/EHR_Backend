@@ -113,6 +113,7 @@ public class User {
     private LocalDate dob;
 
 
+    private String maritalStatus;
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

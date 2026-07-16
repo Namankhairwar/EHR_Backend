@@ -29,5 +29,5 @@ public class UserResponseDTO {
    private BloodGroup bloodGroup;
    private User.Address address;
    private Doctor.DoctorProfile doctorProfile;
-
+   private String maritalStatus;
 }

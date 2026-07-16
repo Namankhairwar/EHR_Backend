@@ -25,8 +25,8 @@ public class Medicine {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     public long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL , targetEntity = Doctor.class)
-    @JoinColumn(nullable = false,name="doctor_prescribed" )
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Doctor.class)
+    @JoinColumn(nullable = false, name = "doctor_prescribed")
     private Doctor prescribedBy;
 
     private LocalDate prescribedOn;
@@ -35,11 +35,11 @@ public class Medicine {
     @Lazy
     private List<MedicineDetails> details;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL , targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
     private User patient;
 
-    @ManyToOne(fetch = FetchType.LAZY , targetEntity = DietInstruction.class,cascade = CascadeType.ALL)
-    @Lazy
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = DietInstruction.class)
+    @JoinColumn(name = "diet_id")
     private DietInstruction diet;
 
 
@@ -70,15 +70,5 @@ public class Medicine {
         private String medicineName;
         private String notes;
         private Shift shift;
-    }
-
-@Transient
-private DietInstructionRepository dietInstructionRepository;
-    @PreUpdate
-    @PrePersist
-    private void setDiet(){
-        if(diet!=null){
-            dietInstructionRepository.save(diet);
-        }
     }
 }
