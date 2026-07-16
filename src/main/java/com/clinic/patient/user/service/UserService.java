@@ -6,6 +6,9 @@ import com.clinic.patient.applicationCommonFeature.authentication.dto.auth.AuthR
 import com.clinic.patient.applicationCommonFeature.authentication.dto.jwt.TokenResponse;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginRequest;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginResponse;
+import com.clinic.patient.applicationCommonFeature.authentication.entity.VerificationToken;
+import com.clinic.patient.applicationCommonFeature.authentication.service.EmailService;
+import com.clinic.patient.applicationCommonFeature.authentication.service.VerificationTokenService;
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.user.dto.UserRequestDTO;
@@ -39,8 +42,10 @@ public class UserService {
 
     private  final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final JwtService jwtService;
+
+    private final VerificationTokenService verificationTokenService;
+    private final EmailService emailService;
 
     public List<UserResponseDTO> getAllUsers() {
 
@@ -102,6 +107,25 @@ public class UserService {
         }
 
         User user = userOptional.get();
+
+        // Email verification check
+        if (!user.isEmailVerified()) {
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            new AuthLoginResponse(
+                                    new LoginResponse(
+                                            false,
+                                            "Please verify your email first",
+                                            null
+                                    ),
+                                    null
+                            )
+                    );
+        }
+
+
         // Check password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -111,20 +135,37 @@ public class UserService {
         // Login successful
         UserResponseDTO userData = MAP.map(user, UserResponseDTO::new);
 
+        TokenResponse tokenResponse =
+                new TokenResponse(
+                        jwtService.generateNewToken(user.getEmail()),
+                        jwtService.generateRefreshToken(user.getEmail())
+                );
+
         return ResponseEntity.ok(
-                new AuthLoginResponse(new LoginResponse(true, "Authenticated", userData)
-                        , new TokenResponse(jwtService.generateNewToken(loginRequest.getEmail()),
-                        jwtService.generateRefreshToken(loginRequest.getEmail()))
+                new AuthLoginResponse(
+                        new LoginResponse(
+                                true,
+                                "Authenticated",
+                                userData
+                        ),
+                        tokenResponse
                 )
         );
 
 
     }
 
+
+
+
     public boolean doesUserExist(long id){
         Optional<User> byId = userRepository.findById(id);
         return byId.isPresent();
     }
+
+
+
+
     public ResponseEntity<?> register(UserRequestDTO dto) {
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -135,17 +176,32 @@ public class UserService {
         log.info(dto.toString());
         User user = MAP.map(dto, User::new);
         log.info(user.toString());
-        User saved = userRepository.save(user);
 
-        UserResponseDTO responseDTO = MAP.map(saved, UserResponseDTO::new);
+        // first save usser
+        User savedUser = userRepository.save(user);
 
-        TokenResponse tokenResponse = new TokenResponse(
-                jwtService.generateNewToken(saved.getEmail()),
-                jwtService.generateRefreshToken(saved.getEmail())
+        // create verification token
+        VerificationToken verificationToken = verificationTokenService.createVerificationToken(savedUser);
+
+
+        // send verification email
+        emailService.sendVerificationEmail(
+                savedUser.getEmail(),
+                savedUser.getFirstName(),
+                verificationToken.getToken()
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthResponse(responseDTO, tokenResponse));
+        UserResponseDTO responseDTO =
+                MAP.map(savedUser, UserResponseDTO::new);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        "Registration successful. Please check your email and verify your account."
+                );
+
+
     }
 
 }
