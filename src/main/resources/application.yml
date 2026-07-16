@@ -17,6 +17,27 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: a5b456001@smtp-brevo.com
+    password: xsmtpsib-5c694a5d7d2fb243c95b56eb86a0dc7c8b362a80ecf41e5b40b7cdb17944cade-VooBnHbXLxLP6RTS
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+
+        # safe mail send using TLS
+        starttls:
+          enable: true
+
+        # default sender mail
+        from: rekandlal11@gmail.com
+
+
+
 jwt:
   secret: c7f75eaa04c8749f73a74496b669a862f00bba7033e0a8e8279f6b3d7f1be2c9
   expiration: 86400000
