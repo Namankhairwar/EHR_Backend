@@ -19,7 +19,7 @@ public class DietInstructionController {
     private final DietInstructionRepository dietInstructionRepository;
 
     @PostMapping("patient/{patient_id}/diet_instruction")
-    public ResponseEntity<?> addDietInstruction(@RequestParam long patient_id
+    public ResponseEntity<?> addDietInstruction(@PathVariable("patient_id") long patient_id
             , @RequestBody DietInstructionRequest dietInstructionRequest){
         DietInstruction dietInstruction = MAP.map(dietInstructionRequest , DietInstruction::new);
         User user = new User();
@@ -28,6 +28,7 @@ public class DietInstructionController {
         User user2 = new User();
         user2.setEhrId(dietInstructionRequest.getPrescribeBy());
         Doctor doctor = new Doctor();
+        doctor.setId(dietInstructionRequest.getPrescribeBy());
         doctor.setUser(user2);
         dietInstruction.setPrescribeBy(doctor);
 
@@ -37,26 +38,26 @@ public class DietInstructionController {
 
 
     @GetMapping("patient/{dietId}/diet_instruction")
-    public ResponseEntity<?> getDietInstruction(@RequestParam long dietId){
+    public ResponseEntity<?> getDietInstruction(@PathVariable("dietId") long dietId){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
          DietInstruction d = dietInstruction.orElseThrow(()-> new RuntimeException("This diet does not exist"));
         return ResponseEntity.ok(d);
     }
 
     @PutMapping("patient/{patient_id}/{dietId}/diet_instruction")
-    public ResponseEntity<?> updateDietInstruction(@RequestParam long patient_id,
-            @RequestParam long dietId
+    public ResponseEntity<?> updateDietInstruction(@PathVariable("patient_id") long patient_id,
+            @PathVariable("dietId") long dietId
             , @RequestBody DietInstructionRequest dietInstructionRequest){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
         DietInstruction diet = dietInstruction.orElseThrow(()-> new RuntimeException("This diet does not exist"));
-        MAP.copyInTheObject(dietInstruction,diet);
+        MAP.copyInTheObject(dietInstructionRequest,diet);
         dietInstructionRepository.save(diet);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("patient/{patient_id}/diet_instruction")
-    public ResponseEntity<?> deleteDietInstruction(@RequestParam long patient_id,
-                                                   @RequestParam long dietId){
+    public ResponseEntity<?> deleteDietInstruction(@PathVariable("patient_id") long patient_id,
+                                                   @RequestParam("dietId") long dietId){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
         DietInstruction diet = dietInstruction.orElseThrow(()-> new RuntimeException("This diet does not exist"));
         dietInstructionRepository.delete(diet);

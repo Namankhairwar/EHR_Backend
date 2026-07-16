@@ -19,17 +19,11 @@ public interface MedicineRepository extends JpaRepository<Medicine,Long> {
 
     Page<Medicine> findAllByPatient_EhrIdOrderByPrescribedOn(long id, Pageable pageable);
 
-    Page<Medicine> findAllByPatient_EhrIdAndDetailsIsActiveTrue(Long patientId, Boolean detailsIsActive, Pageable pageable);
-
-
-
+    java.util.List<Medicine> findAllByPatient_EhrId(Long patientId);
 
     @Transactional
   default  Optional<Medicine> saveMedicine(Medicine entity){
       Medicine save = save(entity);
       return Optional.of(save);
   }
-
-
-    DietInstruction getDietByPatient_EhrId(long id);
 }

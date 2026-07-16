@@ -16,7 +16,7 @@ public class DietInstruction {
     private String name_of_diet; // for general,sugar,fitness, or any other diagnose so this same data not going to be entered
    private String food_description;
 
-   @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.ALL , targetEntity = Doctor.class)
+   @ManyToOne(fetch = FetchType.LAZY , targetEntity = Doctor.class)
    @JoinColumn(name="doc_id" , referencedColumnName = "ehrid")
     private Doctor prescribeBy;
 

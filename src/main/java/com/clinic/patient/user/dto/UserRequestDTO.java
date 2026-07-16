@@ -25,5 +25,6 @@ public class UserRequestDTO {
     private Gender gender;
     private User.Emergency emergencyContact;
     private Doctor.DoctorProfile doctorProfile;
+    private String maritalStatus;
 
 }
