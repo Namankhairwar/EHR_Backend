@@ -35,14 +35,14 @@ public class DoctorController {
 
     // Get Doctor by ID
     @GetMapping("/{id}/profile")
-    public ResponseEntity<DoctorResponse> getDoctorById(@PathVariable Long id) {
+    public ResponseEntity<DoctorResponse> getDoctorById(@PathVariable String id) {
         return ResponseEntity.ok( MAP.map(doctorService.getDoctorById(id).orElseThrow(),
                 DoctorResponse::new));
 
     }
 
     @PutMapping("/{id}/profile")
-    public ResponseEntity<?> updateDoctor(@PathVariable Long id, @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<?> updateDoctor(@PathVariable String id, @RequestBody UserRequestDTO userRequestDTO) {
       try{
          Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
         if (existingDoctorOpt.isPresent()) {
@@ -63,7 +63,7 @@ public class DoctorController {
 
 
        @PatchMapping("/{id}/password")
-    public ResponseEntity<?> updateDoctorPassword(@PathVariable Long id, @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<?> updateDoctorPassword(@PathVariable String id, @RequestBody UserRequestDTO userRequestDTO) {
       try{
          Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
         if (existingDoctorOpt.isPresent()) {
@@ -80,7 +80,7 @@ public class DoctorController {
     }
 
       @PutMapping("/{id}/degrees")
-    public ResponseEntity<?> updateDoctorDegrees(@PathVariable Long id, @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<?> updateDoctorDegrees(@PathVariable String id, @RequestBody UserRequestDTO userRequestDTO) {
       try{
          Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
         if (existingDoctorOpt.isPresent()) {
@@ -99,12 +99,17 @@ public class DoctorController {
 
     // Delete Doctor
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDoctor(@PathVariable Long id) {
+    public ResponseEntity<?> deleteDoctor(@PathVariable String id) {
       try {
           doctorService.deleteDoctor(id);
           return ResponseEntity.noContent().build();
       }catch(Exception e){
           return  GlobalExceptionHandler.incorrectUpdate(new NoSuchFieldException("There is no doctor register with this ehrId"));
       }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Doctor>> searchDoctors(@RequestParam("query") String query) {
+        return ResponseEntity.ok(doctorRepository.searchDoctors(query));
     }
 }

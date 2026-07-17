@@ -25,7 +25,7 @@ public class PatientController {
 
     @PostMapping("/{patientId}/allergies")
     public ResponseEntity<AllergyResponseDTO> createAllergy(
-            @PathVariable Long patientId,
+            @PathVariable String patientId,
             @RequestBody AllergyRequestDTO dto
     ) {
        allergyService.createAllergy(patientId, dto);
@@ -38,7 +38,7 @@ public class PatientController {
 
     @PutMapping("/{patientId}/allergies")
     public ResponseEntity<Void> updateAllergy(
-            @PathVariable Long patientId,
+            @PathVariable String patientId,
             @RequestBody AllergyRequestDTO dto
     ) {
 
@@ -46,12 +46,17 @@ public class PatientController {
                 allergyService.check(patientId,dto);
         if (!alreadyExists) {
             throw new RuntimeException(
-                    "This allergy is already registered for the patient"
+                    "This allergy is not registered for the patient"
             );
         }
 
-        Optional<Allergy> byallergyid = allergyRepository.findByallergyid(patientId);
-       allergyRepository.save(byallergyid.get());
+        Allergy allergy = allergyRepository.findAllByPatient_EhrId(patientId).stream()
+                .filter(a -> a.getAllergyType() == dto.getAllergyType())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Allergy not found"));
+
+        com.clinic.patient.applicationCommonFeature.mapping.MAP.copyInTheObject(dto, allergy);
+        allergyRepository.save(allergy);
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .build();
@@ -62,7 +67,7 @@ public class PatientController {
 
     @GetMapping("/{patientId}/allergies")
     public ResponseEntity<List<AllergyResponseDTO>> getPatientAllergies(
-            @PathVariable Long patientId
+            @PathVariable String patientId
     ) {
 
         return ResponseEntity.ok(
@@ -72,7 +77,7 @@ public class PatientController {
 
     @DeleteMapping("/{patientId}/allergies/{allergyId}")
     public ResponseEntity<Void> deleteAllergy(
-            @PathVariable Long patientId,
+            @PathVariable String patientId,
             @PathVariable Long allergyId
     ) {
 

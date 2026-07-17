@@ -27,7 +27,7 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public List<Notification> getNotificationsForUser(long userId) {
+    public List<Notification> getNotificationsForUser(String userId) {
         return notificationRepository.findAllByUser_EhrIdOrderByTimestampDesc(userId);
     }
 

@@ -11,12 +11,12 @@ import java.util.Optional;
 @Repository
 public interface AllergyRepository extends JpaRepository<Allergy, Long> {
 
-    List<Allergy> findAllByPatient_EhrId(Long patientId);
+    List<Allergy> findAllByPatient_EhrId(String patientId);
 
-    Optional<Allergy> findByallergyidAndPatient_EhrId(Long allergyid, Long patientId);
+    Optional<Allergy> findByallergyidAndPatient_EhrId(Long allergyid, String patientId);
 
 
     Optional<Allergy> findByallergyid(long id);
 
-    boolean existsByPatient_EhrIdAndAllergyType(Long patientEhrId, AllergyType allergyType);
+    boolean existsByPatient_EhrIdAndAllergyType(String patientEhrId, AllergyType allergyType);
 }

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface DietInstructionRepository extends JpaRepository<DietInstruction,Long> {
-    Optional<DietInstruction> findFirstByPatientId_EhrIdOrderByIdDesc(long patientId);
+    Optional<DietInstruction> findFirstByPatientId_EhrIdOrderByIdDesc(String patientId);
 }
 
