@@ -21,7 +21,7 @@ import java.util.List;
 public class Doctor {
 
     @Id
-    private Long id;
+    private String id;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(referencedColumnName = "ehrid", name = "ehrid")
@@ -37,7 +37,7 @@ public class Doctor {
     public static class DoctorProfile {
 
         // Explicitly added Aadhaar and PAN for the Doctor
-        @Column(name = "aadhaar_number", unique = true)
+        @Column(name = "aadhaar_number", unique = true,length = 12)
         private String aadhaarNumber;
 
         @Column(name = "pan_number", unique = true)

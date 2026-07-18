@@ -39,7 +39,7 @@ public class UserController {
      * @return user object
      */
     @GetMapping("{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
      try {
         return ResponseEntity.ok(userService.getUserById(id, UserResponseDTO.class));
      }catch(GlobalExceptionHandler e){
@@ -52,7 +52,7 @@ public class UserController {
      * @return updated user object
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserRequestDTO dto) {
         try{ return ResponseEntity.ok( userService.updateUser(id,dto));}
         catch(GlobalExceptionHandler e){
             return GlobalExceptionHandler.incorrectUpdate(new NoAspectBoundException("user incorrect updating profile",new Exception()));
@@ -60,7 +60,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/BloodGroup")
-    public ResponseEntity<?> updateUserBloodGroup(@PathVariable Long id, @RequestBody UserRequestDTO bloodGroup) {
+    public ResponseEntity<?> updateUserBloodGroup(@PathVariable String id, @RequestBody UserRequestDTO bloodGroup) {
 
       try{ return ResponseEntity.ok(userService.updateUser(id, MAP.map(bloodGroup,UserRequestDTO::new)));}
       catch(GlobalExceptionHandler e){
@@ -76,12 +76,17 @@ public class UserController {
      * @return void matters with the status code
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable String id) {
         try{ userService.deleteUser(id);
             return ResponseEntity.ok().build();
         }
         catch(Exception e){
             return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException());
         }
+    }
+
+    @GetMapping("/search-patients")
+    public ResponseEntity<?> searchPatients(@RequestParam("query") String query) {
+        return ResponseEntity.ok(userService.searchPatients(query));
     }
 }

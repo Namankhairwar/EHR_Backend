@@ -43,15 +43,15 @@ public class DoctorService {
         return doctorRepository.findAll();
     }
 
-    public Optional<Doctor> getDoctorById(Long id) {
+    public Optional<Doctor> getDoctorById(String id) {
         return doctorRepository.findById(id);
     }
 
-    public void deleteDoctor(Long id) {
+    public void deleteDoctor(String id) {
         doctorRepository.deleteById(id);
     }
 
-    public Doctor updateDoctor(Long id, Doctor doctor)  throws GlobalExceptionHandler{
+    public Doctor updateDoctor(String id, Doctor doctor)  throws GlobalExceptionHandler{
         Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
         if (existingDoctorOpt.isPresent()) {
             MAP.copyInTheObject(doctor, existingDoctorOpt.get());

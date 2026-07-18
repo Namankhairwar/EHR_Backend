@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    List<Report> findAllByPatient_EhrIdOrderByDateTimeDesc(long patientId);
-    List<Report> findAllByDoctor_IdOrderByDateTimeDesc(long doctorId);
+    List<Report> findAllByPatient_EhrIdOrderByDateTimeDesc(String patientId);
+    List<Report> findAllByDoctor_IdOrderByDateTimeDesc(String doctorId);
 }

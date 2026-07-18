@@ -13,13 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 public class MedicineRequest {
 
-    private long prescribedBy;
+    private String prescribedBy;
 
     private String prescribedOn;
 
     private List<Medicine.MedicineDetails> details;
 
-    private long patient;
+    private String patient;
 
     private DietInstruction diet;
 

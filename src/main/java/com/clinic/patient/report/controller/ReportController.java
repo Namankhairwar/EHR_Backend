@@ -26,7 +26,7 @@ public class ReportController {
     }
 
     @GetMapping("patient/{patientId}")
-    public ResponseEntity<List<ReportResponseDto>> getReportsByPatient(@PathVariable("patientId") long patientId) {
+    public ResponseEntity<List<ReportResponseDto>> getReportsByPatient(@PathVariable("patientId") String patientId) {
         return ResponseEntity.ok(reportService.getReportsByPatientId(patientId));
     }
 

@@ -5,19 +5,29 @@ import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.service.DoctorService;
 import com.clinic.patient.report.dto.ReportRequestDto;
 import com.clinic.patient.report.dto.ReportResponseDto;
+import com.clinic.patient.report.dto.ReportAccessRequestDto;
+import com.clinic.patient.report.dto.ReportAccessRequestResponseDto;
 import com.clinic.patient.report.entity.Report;
+import com.clinic.patient.report.entity.ReportAccessRequest;
 import com.clinic.patient.report.repositories.ReportRepository;
+import com.clinic.patient.report.repositories.ReportAccessRequestRepository;
+import com.clinic.patient.report.state.ReportAccessStatus;
 import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.UserRepository;
 import com.clinic.patient.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +38,7 @@ public class ReportService {
     private final DoctorService doctorService;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ReportAccessRequestRepository reportAccessRequestRepository;
 
     @Transactional
     public void addReport(ReportRequestDto request) {
@@ -46,7 +57,7 @@ public class ReportService {
 
         String doctorName = doctor.getUser().getFirstName() + " " + doctor.getUser().getLastName();
 
-        for (Long patientId : request.getPatientIds()) {
+        for (String patientId : request.getPatientIds()) {
             User patient = userRepository.findById(patientId)
                     .orElseThrow(() -> new RuntimeException("Patient not found for ID: " + patientId));
 
@@ -70,7 +81,23 @@ public class ReportService {
         }
     }
 
-    public List<ReportResponseDto> getReportsByPatientId(long patientId) {
+    public List<ReportResponseDto> getReportsByPatientId(String patientId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            String email = (String) authentication.getPrincipal();
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            if (currentUser.getRole() == com.clinic.patient.applicationCommonFeature.state.Role.DOCTOR) {
+                boolean hasAccess = reportAccessRequestRepository
+                        .findByDoctor_IdAndPatient_EhrId(currentUser.getEhrId(), patientId)
+                        .map(req -> req.getStatus() == ReportAccessStatus.APPROVED)
+                        .orElse(false);
+                if (!hasAccess) {
+                    throw new AccessDeniedException("Access denied. You do not have approved report access to this patient's reports.");
+                }
+            }
+        }
+
         return reportRepository.findAllByPatient_EhrIdOrderByDateTimeDesc(patientId).stream()
                 .map(r -> {
                     ReportResponseDto dto = MAP.map(r, ReportResponseDto::new);
@@ -86,5 +113,86 @@ public class ReportService {
     public Report getReportFile(long id) {
         return reportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report not found"));
+    }
+
+    @Transactional
+    public void requestAccess(ReportAccessRequestDto dto) {
+        Doctor doctor = doctorService.getDoctorById(dto.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        User patient = userRepository.findById(dto.getPatientId())
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        Optional<ReportAccessRequest> existing = reportAccessRequestRepository
+                .findByDoctor_IdAndPatient_EhrId(dto.getDoctorId(), dto.getPatientId());
+
+        ReportAccessRequest request;
+        if (existing.isPresent()) {
+            request = existing.get();
+            request.setStatus(ReportAccessStatus.PENDING);
+            request.setRequestedAt(LocalDateTime.now());
+        } else {
+            request = ReportAccessRequest.builder()
+                    .doctor(doctor)
+                    .patient(patient)
+                    .status(ReportAccessStatus.PENDING)
+                    .requestedAt(LocalDateTime.now())
+                    .build();
+        }
+        reportAccessRequestRepository.save(request);
+
+        String doctorName = doctor.getUser().getFirstName() + " " + doctor.getUser().getLastName();
+        String message = "Dr. " + doctorName + " has requested access to view your medical reports.";
+        notificationService.createNotification(patient, message);
+    }
+
+    @Transactional
+    public void approveAccess(Long requestId) {
+        ReportAccessRequest request = reportAccessRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        request.setStatus(ReportAccessStatus.APPROVED);
+        request.setRespondedAt(LocalDateTime.now());
+        reportAccessRequestRepository.save(request);
+
+        String patientName = request.getPatient().getFirstName() + " " + request.getPatient().getLastName();
+        String message = "Patient " + patientName + " has approved your request to view their medical reports.";
+        notificationService.createNotification(request.getDoctor().getUser(), message);
+    }
+
+    @Transactional
+    public void rejectAccess(Long requestId) {
+        ReportAccessRequest request = reportAccessRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        request.setStatus(ReportAccessStatus.REJECTED);
+        request.setRespondedAt(LocalDateTime.now());
+        reportAccessRequestRepository.save(request);
+
+        String patientName = request.getPatient().getFirstName() + " " + request.getPatient().getLastName();
+        String message = "Patient " + patientName + " has rejected your request to view their medical reports.";
+        notificationService.createNotification(request.getDoctor().getUser(), message);
+    }
+
+    public List<ReportAccessRequestResponseDto> getRequestsByPatient(String patientId) {
+        return reportAccessRequestRepository.findAllByPatient_EhrId(patientId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ReportAccessRequestResponseDto> getRequestsByDoctor(String doctorId) {
+        return reportAccessRequestRepository.findAllByDoctor_Id(doctorId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private ReportAccessRequestResponseDto mapToDto(ReportAccessRequest request) {
+        ReportAccessRequestResponseDto dto = new ReportAccessRequestResponseDto();
+        dto.setId(request.getId());
+        dto.setPatientId(request.getPatient().getEhrId());
+        dto.setPatientName(request.getPatient().getFirstName() + " " + request.getPatient().getLastName());
+        dto.setDoctorId(request.getDoctor().getId());
+        dto.setDoctorName(request.getDoctor().getUser().getFirstName() + " " + request.getDoctor().getUser().getLastName());
+        dto.setStatus(request.getStatus());
+        dto.setRequestedAt(request.getRequestedAt());
+        dto.setRespondedAt(request.getRespondedAt());
+        return dto;
     }
 }

@@ -20,6 +20,17 @@ public class GlobalExceptionHandler extends Exception {
 
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public static ResponseEntity<Map<String, Object>> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.FORBIDDEN.value());
+        errorResponse.put("error", "Forbidden");
+        errorResponse.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
     // Generic fallback for other exceptions
     @ExceptionHandler(Exception.class)
     public static ResponseEntity<Map<String, Object>> internalError(Exception ex) {

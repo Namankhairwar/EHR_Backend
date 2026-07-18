@@ -10,8 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportRequestDto {
-    private List<Long> patientIds;
-    private Long doctorId;
+    private List<String> patientIds;
+    private String doctorId;
     private String dateTime;
     private String info;
     private String desc;

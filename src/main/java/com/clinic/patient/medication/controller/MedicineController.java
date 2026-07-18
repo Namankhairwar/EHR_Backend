@@ -20,7 +20,7 @@ public class MedicineController {
     // from doctor patient medicine id
     // create update
     @GetMapping("patients/{patient_id}/medical-records")
-    public ResponseEntity<?> getAllMedicineByPatient(@PathVariable("patient_id") long patient_id,
+    public ResponseEntity<?> getAllMedicineByPatient(@PathVariable("patient_id") String patient_id,
                                                      @RequestParam(defaultValue = "0")int page_no ,
                                                      @RequestParam(defaultValue = "5") int size,
                                                      @RequestParam(defaultValue = "prescribedOn") String property
@@ -28,7 +28,7 @@ public class MedicineController {
         Page<MedicineResponse> allMedicineByPatientId =
                 medicineService.getAllMedicineByPatientId(patient_id, page_no, size,property);
      return  new ResponseEntity<>(allMedicineByPatientId, HttpStatusCode.valueOf(200));
-    }
+     }
 
     @GetMapping("patients/medical-records/{recordId}")
     public ResponseEntity<Medicine> getMedicinalInformationByid(@PathVariable("recordId") long id){
@@ -37,7 +37,7 @@ public class MedicineController {
 
 
     @GetMapping("patients/{patientId}/medications")
-    public ResponseEntity<?> getMedicinalInformationByidGoingOn(@PathVariable("patientId") long id,
+    public ResponseEntity<?> getMedicinalInformationByidGoingOn(@PathVariable("patientId") String id,
                                                        @RequestParam(defaultValue = "0")int page_no ,
                                                        @RequestParam(defaultValue = "5") int size,
                                                        @RequestParam(defaultValue = "prescribedOn") String property){
@@ -47,7 +47,7 @@ public class MedicineController {
     }
 
     @GetMapping("patients/{patientId}/medication/history")
-    public ResponseEntity<?> getMedicinalInformationByidGoingOff(@PathVariable("patientId") long id,
+    public ResponseEntity<?> getMedicinalInformationByidGoingOff(@PathVariable("patientId") String id,
                                                                 @RequestParam(defaultValue = "0")int page_no ,
                                                                 @RequestParam(defaultValue = "5") int size,
                                                                 @RequestParam(defaultValue = "prescribedOn") String property){
@@ -58,13 +58,12 @@ public class MedicineController {
 
     @PostMapping("patients/medications")
     public ResponseEntity<Void> addMedication(@RequestBody MedicineRequest request){
-        medicineService
-                .save(MAP.map(request,Medicine::new));
+        medicineService.save(request);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("patients/{patientId}/diet-instructions")
-    public ResponseEntity<?> getDietByPatient(@PathVariable("patientId") long id){
+    public ResponseEntity<?> getDietByPatient(@PathVariable("patientId") String id){
         return ResponseEntity.ok(medicineService.getDietByPatient(id));
     }
 

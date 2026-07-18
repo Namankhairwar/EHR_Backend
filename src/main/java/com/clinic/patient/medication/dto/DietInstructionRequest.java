@@ -14,6 +14,6 @@ public class DietInstructionRequest {
     private String food_description;
 
 
-    private long prescribeBy;
+    private String prescribeBy;
 
 }

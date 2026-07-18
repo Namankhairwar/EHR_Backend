@@ -19,7 +19,7 @@ public class DietInstructionController {
     private final DietInstructionRepository dietInstructionRepository;
 
     @PostMapping("patient/{patient_id}/diet_instruction")
-    public ResponseEntity<?> addDietInstruction(@PathVariable("patient_id") long patient_id
+    public ResponseEntity<?> addDietInstruction(@PathVariable("patient_id") String patient_id
             , @RequestBody DietInstructionRequest dietInstructionRequest){
         DietInstruction dietInstruction = MAP.map(dietInstructionRequest , DietInstruction::new);
         User user = new User();
@@ -45,7 +45,7 @@ public class DietInstructionController {
     }
 
     @PutMapping("patient/{patient_id}/{dietId}/diet_instruction")
-    public ResponseEntity<?> updateDietInstruction(@PathVariable("patient_id") long patient_id,
+    public ResponseEntity<?> updateDietInstruction(@PathVariable("patient_id") String patient_id,
             @PathVariable("dietId") long dietId
             , @RequestBody DietInstructionRequest dietInstructionRequest){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
@@ -56,7 +56,7 @@ public class DietInstructionController {
     }
 
     @DeleteMapping("patient/{patient_id}/diet_instruction")
-    public ResponseEntity<?> deleteDietInstruction(@PathVariable("patient_id") long patient_id,
+    public ResponseEntity<?> deleteDietInstruction(@PathVariable("patient_id") String patient_id,
                                                    @RequestParam("dietId") long dietId){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
         DietInstruction diet = dietInstruction.orElseThrow(()-> new RuntimeException("This diet does not exist"));

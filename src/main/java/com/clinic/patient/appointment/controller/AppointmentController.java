@@ -24,7 +24,7 @@ public class AppointmentController {
 
     // Get All Appointments
     @GetMapping("all/{user_id}")
-    public ResponseEntity<?> getAllAppointments(@PathVariable("user_id") long user_id ,
+    public ResponseEntity<?> getAllAppointments(@PathVariable("user_id") String user_id ,
                                                 @RequestParam(value="size" , defaultValue = "5") int size,
                                                 @RequestParam(value="page" , defaultValue = "0") int page,
                                                 @RequestParam(value = "sortBy" , defaultValue = "appointmentTime") String sort) {

@@ -15,13 +15,13 @@ import java.util.List;
 public class MedicineResponse {
 
     private long id;
-    private long prescribedBy;
+    private String prescribedBy;
 
     private String prescribedOn;
 
     private List<Medicine.MedicineDetails> details;
 
-    private long patient;
+    private String patient;
 
     private DietInstruction diet;
 }

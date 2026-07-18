@@ -19,10 +19,10 @@ import java.time.LocalDate;
 @ResponseBody
 public class UserResponseDTO {
    private String email;
-   private Long ehrId;
+   private String ehrId;
    private String firstName;
    private String lastName;
-   private long phoneNo;
+   private Long phoneNo;
    private String dob;
    private Gender gender;
    private Role role;
@@ -30,4 +30,6 @@ public class UserResponseDTO {
    private User.Address address;
    private Doctor.DoctorProfile doctorProfile;
    private String maritalStatus;
+   private User.Emergency emergencyContact;
 }
+

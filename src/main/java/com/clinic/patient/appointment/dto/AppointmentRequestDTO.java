@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 public class AppointmentRequestDTO {
 
-    private Long patientId;
-    private Long doctorId;
+    private String patientId;
+    private String doctorId;
     private AppointmentStatus status;
     private String date;
     private String startTime;
