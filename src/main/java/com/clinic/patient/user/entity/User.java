@@ -162,7 +162,11 @@ public class User {
     private void encode(){
       if(!password.isEmpty())  password= passwordEncoder.encode(this.password);
       log.info("Password : {} and encoded pass {}",password,passwordEncoder);
-
+      if (emergencyContact == null) {
+          emergencyContact = new Emergency(firstName + " " + lastName, phoneNo != null ? phoneNo : 0L, "Self");
+      } else if (emergencyContact.getContactPhoneNo() == null) {
+          emergencyContact.setContactPhoneNo(phoneNo != null ? phoneNo : 0L);
+      }
     }
 
     public static void setPasswordEncoder(PasswordEncoder passwordEncode){

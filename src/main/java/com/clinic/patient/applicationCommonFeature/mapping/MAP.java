@@ -21,14 +21,16 @@ import java.util.stream.Collectors;
 public class MAP {
 
     public static <T1,T2> T2 map(T1 obj1, Supplier<T2> obj, String ...o ){
+
         T2 obj2 =  obj.get();
-        BeanUtils.copyProperties(obj1,obj2,emptyFunction(
-        obj1,obj2, Arrays.stream(o).
+        Set<String> strings = emptyFunction(
+                obj1, obj2, Arrays.stream(o).
                         collect(Collectors.toSet())
-        ));
+        );
+        BeanUtils.copyProperties(obj1,obj2,strings.toArray(new String[]{}));
 
         // localDate identify them and parse them into string
-        Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2);
+        Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2,strings);
         try {
             execute(LocalDateAttributes,obj1,obj2);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
@@ -62,37 +64,38 @@ public class MAP {
           }
         }
     }
-    private static <T1,T2>Set<PropertyDescriptor> localDatePropertyNameGive(T1 obj1, T2 obj2){
+    private static <T1,T2>Set<PropertyDescriptor> localDatePropertyNameGive(T1 obj1, T2 obj2,Set<String> st){
         BeanWrapper src2 = PropertyAccessorFactory.forBeanPropertyAccess(obj1);
         PropertyDescriptor[]  propertyDescriptors2 = src2.getPropertyDescriptors();
         Set<PropertyDescriptor> empty = new HashSet<>();
-        addLocalDate(empty, propertyDescriptors2);
+        addLocalDate(empty, propertyDescriptors2,st);
 
         BeanWrapper src1 = PropertyAccessorFactory.forBeanPropertyAccess(obj2);
         PropertyDescriptor[]  propertyDescriptors1 = src1.getPropertyDescriptors();
 
-        addLocalDate(empty, propertyDescriptors1);
+        addLocalDate(empty, propertyDescriptors1,st);
         return empty;
     }
 
-    private static void addLocalDate(Set<PropertyDescriptor> empty, PropertyDescriptor[] propertyDescriptors1) {
+    private static void addLocalDate(Set<PropertyDescriptor> empty, PropertyDescriptor[] propertyDescriptors1,Set<String> set) {
         for(PropertyDescriptor t:propertyDescriptors1){
             String type= t.getPropertyType().getTypeName();
-            if(type.equals(LocalDate.class.getName()) || type.equals(Date.class.getName()) || type.equals(LocalDateTime.class.getName()) || type.equals(LocalTime.class.getName())){
+            if(!set.contains(type) && (type.equals(LocalDate.class.getName()) || type.equals(Date.class.getName()) || type.equals(LocalDateTime.class.getName()) || type.equals(LocalTime.class.getName()))){
                 empty.add(t);
             }
         }
     }
 
     public static <T1,T2> void copyInTheObject(T1 obj1, T2 obj2, String ...o ){
-        BeanUtils.copyProperties(obj1,obj2,emptyFunction(
+        Set<String> p = emptyFunction(
                 obj1,obj2,
-                   Arrays.stream(o).
+                Arrays.stream(o).
                         collect(Collectors.toSet())
-        ));
+        );
+        BeanUtils.copyProperties(obj1,obj2);
 
         // localDate identify them and parse them into string
-        Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2);
+        Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2,p);
         try {
             execute(LocalDateAttributes,obj1,obj2);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
@@ -100,7 +103,7 @@ public class MAP {
         }
 
     }
-    private static <T1,T2>String[] emptyFunction(T1 obj1,T2 obj2 , Set<String> empty){
+    private static <T1,T2>Set<String> emptyFunction(T1 obj1,T2 obj2 , Set<String> empty){
        BeanWrapper src = PropertyAccessorFactory.forBeanPropertyAccess(obj1);
        PropertyDescriptor[]  propertyDescriptors = src.getPropertyDescriptors();
         // storing all the methods for removing the missing methods in obj2 with obj1
@@ -120,7 +123,7 @@ public class MAP {
         }
       }
 
-        return empty.toArray(new String[0]);
+        return empty;
     }
 
 
@@ -132,18 +135,19 @@ public class MAP {
                         obj1,obj2
                 ,       Arrays.stream(o).
                         collect(Collectors.toSet())
-        ));
+        ).toArray(new String[]{}));
         return obj2;
     }
     public static <T1,T2> void copyInTheObjectRequired(T1 obj1, T2 obj2, String ...o ){
-        BeanUtils.copyProperties(obj1,obj2,emptyFunction(
+        Set<String> p =emptyFunction(
                 obj1,obj2
                 ,       Arrays.stream(o).
                         collect(Collectors.toSet())
-        ));
+        );
+        BeanUtils.copyProperties(obj1,obj2,p.toArray(new String[]{}));
 
         // localDate identify them and parse them into string
-        Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2);
+        Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2,p);
         try {
             execute(LocalDateAttributes,obj1,obj2);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {

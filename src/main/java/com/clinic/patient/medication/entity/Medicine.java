@@ -31,7 +31,8 @@ public class Medicine {
 
     private LocalDate prescribedOn;
 
-    @Convert(converter = MedicineDetailsConvert.class)
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "medicine")
+    @JoinColumn(referencedColumnName = "medicine")
     @Lazy
     private List<MedicineDetails> details;
 
@@ -46,14 +47,16 @@ public class Medicine {
     @Getter
     @Setter
     @NoArgsConstructor
-
+    @Embeddable
+    @Entity
    public static class MedicineDetails {
 
         @JsonCreator
         public MedicineDetails(@JsonProperty double dosageMg,@JsonProperty LocalDate expire,
                                @JsonProperty Boolean isActive,@JsonProperty String medicineName,
                                @JsonProperty String notes,@JsonProperty Shift shift,
-                               @JsonProperty int tenure) {
+                               @JsonProperty int tenure,
+                               @JsonProperty Medicine medicine) {
             this.dosageMg = dosageMg;
             this.expire = expire;
             this.isActive = isActive;
@@ -61,7 +64,10 @@ public class Medicine {
             this.notes = notes;
             this.shift = shift;
             this.tenure = tenure;
+            this.medicine = medicine;
         }
+        @Id
+        private Long id;
 
         private double dosageMg;
         private Boolean isActive;
@@ -70,5 +76,7 @@ public class Medicine {
         private String medicineName;
         private String notes;
         private Shift shift;
+        @ManyToOne
+        private Medicine medicine;
     }
 }

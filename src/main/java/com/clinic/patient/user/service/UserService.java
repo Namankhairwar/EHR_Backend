@@ -7,6 +7,7 @@ import com.clinic.patient.applicationCommonFeature.authentication.dto.login.Logi
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginResponse;
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.clinic.patient.user.dto.UserRequestDTO;
 import com.clinic.patient.user.dto.UserResponseDTO;
 import com.clinic.patient.user.dto.RestrictionRequestDto;
@@ -65,7 +66,7 @@ public class UserService {
     public void filterUserResponse(UserResponseDTO dto) {
         User currentUser = getCurrentUser();
         if (currentUser != null) {
-            if (currentUser.getRole() == com.clinic.patient.applicationCommonFeature.state.Role.ADMIN ||
+            if (currentUser.getRole() == Role.ADMIN ||
                 currentUser.getEhrId().equals(dto.getEhrId())) {
                 return;
             }

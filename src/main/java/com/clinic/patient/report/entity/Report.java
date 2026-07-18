@@ -34,7 +34,6 @@ public class Report {
 
     private String conclusion;
 
-    @Lob
     @Column(name = "file_data", columnDefinition = "BYTEA")
     private byte[] fileData;
 
