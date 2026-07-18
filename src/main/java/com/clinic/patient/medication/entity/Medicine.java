@@ -31,9 +31,9 @@ public class Medicine {
 
     private LocalDate prescribedOn;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "medicine")
-    @JoinColumn(referencedColumnName = "medicine")
+
     @Lazy
+    @Convert(converter = MedicineDetailsConvert.class)
     private List<MedicineDetails> details;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
@@ -47,8 +47,6 @@ public class Medicine {
     @Getter
     @Setter
     @NoArgsConstructor
-    @Embeddable
-    @Entity
    public static class MedicineDetails {
 
         @JsonCreator
