@@ -2,20 +2,35 @@
 server:
   port: 8086
 spring:
+
   datasource:
-    url: jdbc:mysql://localhost:3306/clinic
-    username: root
-    password: "krishna1A@123"
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://db.ocbxteztnmvkfdoiidco.supabase.co:5432/clinic
+    username: postgres
+    password : SkyBags@2026
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-  security:
-    user:
-      name: user
-      password: krishna
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
 jwt:
   secret: c7f75eaa04c8749f73a74496b669a862f00bba7033e0a8e8279f6b3d7f1be2c9
   expiration: 86400000
   refresh-expiration: 604800000
+
+#for seeing the error spl for the convertor error 7/6/26
+logging:
+  level:
+    org:
+    hibernate : DEBUG
+    springframework.orm : DEBUG
+    type:
+      descriptor:
+        sql:
+          BasicBinder : Trace
+          BasicExtractor : Trace
+

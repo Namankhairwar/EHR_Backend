@@ -1,0 +1,74 @@
+package com.clinic.patient.applicationCommonFeature.authentication.controller;
+
+import com.clinic.patient.applicationCommonFeature.authentication.dto.auth.AuthResponse;
+import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginRequest;
+import com.clinic.patient.applicationCommonFeature.authentication.dto.jwt.TokenResponse;
+import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
+import com.clinic.patient.applicationCommonFeature.state.Role;
+import com.clinic.patient.security.jwt.JwtService;
+import com.clinic.patient.doctor.service.DoctorService;
+import com.clinic.patient.user.dto.UserRequestDTO;
+import com.clinic.patient.user.dto.UserResponseDTO;
+import com.clinic.patient.user.service.UserService;
+import com.sun.jdi.InternalException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+
+    private final JwtService jwtService;
+    private final DoctorService doctorService;
+    private final UserService userService;
+    @Autowired
+    public AuthController(JwtService jwtService ,DoctorService doctorService , UserService userService){
+        this.doctorService =doctorService;
+        this.jwtService = jwtService;
+        this.userService = userService;
+    }
+    /**
+     *
+     * @param dto  object uses to register the user
+     * @return UserResponseDTO object
+     */
+
+    @PostMapping("register")
+    public ResponseEntity<?> createUser(@RequestBody UserRequestDTO dto) {
+        try {
+            UserResponseDTO userResponseDTO = null;
+            if (dto.getRole().equals(Role.PATIENT)) {
+                return userService.register(dto);
+            } else if (dto.getRole().equals(Role.DOCTOR)) {
+                userResponseDTO = doctorService.saveDoctor(dto);
+            }
+
+            TokenResponse tokenResponse = new TokenResponse(jwtService.generateNewToken(dto.getEmail()), jwtService.generateRefreshToken(dto.getEmail()));
+            return ResponseEntity.ok(new AuthResponse(userResponseDTO, tokenResponse));
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(GlobalExceptionHandler.internalError(new InternalException(e.getLocalizedMessage())));
+        }}
+
+
+    /**
+     *
+     * @param loginRequest  is used to validate a user by this response body
+     * @return UserResponseDTO object
+     *
+     */
+    @PostMapping("login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+       try {
+            return userService.login(loginRequest);
+        }
+       catch (Exception e) {
+               return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                       .body(GlobalExceptionHandler.internalError(new InternalException("Server is not accepting response try again after some time")));
+           }
+    }
+}
