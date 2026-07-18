@@ -17,6 +17,19 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: vans.healthcare.ehr@gmail.com
+    password: fyfq cscq jvdj qcry
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 jwt:
   secret: c7f75eaa04c8749f73a74496b669a862f00bba7033e0a8e8279f6b3d7f1be2c9
   expiration: 86400000

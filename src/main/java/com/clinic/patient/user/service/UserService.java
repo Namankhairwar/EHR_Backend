@@ -6,6 +6,9 @@ import com.clinic.patient.applicationCommonFeature.authentication.dto.auth.AuthR
 import com.clinic.patient.applicationCommonFeature.authentication.dto.jwt.TokenResponse;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginRequest;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginResponse;
+import com.clinic.patient.applicationCommonFeature.authentication.entity.VerificationToken;
+import com.clinic.patient.applicationCommonFeature.authentication.service.EmailService;
+import com.clinic.patient.applicationCommonFeature.authentication.service.VerificationTokenService;
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.user.dto.UserRequestDTO;
@@ -37,10 +40,16 @@ import java.util.stream.Collectors;
 public class UserService {
 
 
-    private  final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final JwtService jwtService;
+
+
+    // for Email verification
+    private final VerificationTokenService verificationTokenService;
+    private final EmailService emailService;
+
 
     public List<UserResponseDTO> getAllUsers() {
 
@@ -93,38 +102,98 @@ public class UserService {
      */
 
     public ResponseEntity<?> login(LoginRequest loginRequest) {
-        // Find user by email
+
+        log.info("LOGIN START");
+        // first: Find user by email
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
+
+        log.info("USER FOUND : {}", userOptional.isPresent());
 
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AuthLoginResponse(new LoginResponse(false, "User not found", null), null));
+                    .body(
+                            new AuthLoginResponse(
+                                    new LoginResponse(false, "User not found", null),
+                                    null
+                            )
+                    );
         }
 
         User user = userOptional.get();
-        // Check password
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+
+        //----------
+
+        String rawPassword = loginRequest.getPassword();
+        String encodedPassword = user.getPassword();
+
+        log.info("LOGIN PASSWORD : {}", rawPassword);
+        log.info("DB PASSWORD : {}", encodedPassword);
+
+        boolean isMatch = passwordEncoder.matches(
+                rawPassword,
+                encodedPassword
+        );
+
+        log.info("PASSWORD MATCH RESULT : {}", isMatch);
+
+        if (!isMatch) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AuthLoginResponse(new LoginResponse(false, "Wrong Password", null), null));
+                    .body(
+                            new AuthLoginResponse(
+                                    new LoginResponse(false, "Wrong Password", null),
+                                    null
+                            )
+                    );
+        }
+        //---------------------
+
+        log.info("EMAIL VERIFIED : {}", user.isEmailVerified());
+
+        //3rd: Check email verification
+        if (!user.isEmailVerified()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            new AuthLoginResponse(
+                                    new LoginResponse(
+                                            false,
+                                            "Please verify your email first",
+                                            null
+                                    ),
+                                    null
+                            )
+                    );
         }
 
-        // Login successful
+        log.info("Generating JWT");
+
+        //4th: Generate JWT tokens
+        TokenResponse tokenResponse = new TokenResponse(
+                jwtService.generateNewToken(user.getEmail()),
+                jwtService.generateRefreshToken(user.getEmail())
+        );
+
+        log.info("JWT Generated Successfully");
+
+        //5th: User response
         UserResponseDTO userData = MAP.map(user, UserResponseDTO::new);
 
         return ResponseEntity.ok(
-                new AuthLoginResponse(new LoginResponse(true, "Authenticated", userData)
-                        , new TokenResponse(jwtService.generateNewToken(loginRequest.getEmail()),
-                        jwtService.generateRefreshToken(loginRequest.getEmail()))
+                new AuthLoginResponse(
+                        new LoginResponse(
+                                true,
+                                "Authenticated",
+                                userData
+                        ),
+                        tokenResponse
                 )
         );
-
-
     }
 
     public boolean doesUserExist(long id){
         Optional<User> byId = userRepository.findById(id);
         return byId.isPresent();
     }
+
     public ResponseEntity<?> register(UserRequestDTO dto) {
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -132,20 +201,47 @@ public class UserService {
                     .status(HttpStatus.ALREADY_REPORTED)
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
+
+        log.info("Step 1 - Email checked");
+
         log.info(dto.toString());
         User user = MAP.map(dto, User::new);
-        log.info(user.toString());
-        User saved = userRepository.save(user);
 
-        UserResponseDTO responseDTO = MAP.map(saved, UserResponseDTO::new);
+        log.info("Step 2 - User mapped");
 
-        TokenResponse tokenResponse = new TokenResponse(
-                jwtService.generateNewToken(saved.getEmail()),
-                jwtService.generateRefreshToken(saved.getEmail())
+        // Encode password before saving
+        user.setPassword(
+                passwordEncoder.encode(dto.getPassword())
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthResponse(responseDTO, tokenResponse));
+        // Email should be unverified by default
+        user.setEmailVerified(false);
+
+        log.info(user.toString());
+
+        // Save user
+        User savedUser = userRepository.save(user);
+        log.info("Step 3 - User saved");
+
+        // Create verification token
+        VerificationToken verificationToken =
+                verificationTokenService.createVerificationToken(savedUser);
+
+
+        log.info("Token created: {}", verificationToken.getToken());
+        // Send verification email
+        emailService.sendVerificationEmail(
+                savedUser.getEmail(),
+                savedUser.getFirstName(),
+                verificationToken.getToken()
+        );
+
+        log.info("Email sent");
+
+        // Return success response
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Registration successful. Please check your email and verify your account.");
     }
 
 }
