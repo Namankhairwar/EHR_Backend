@@ -6,6 +6,7 @@ import com.clinic.patient.user.state.BloodGroup;
 import com.clinic.patient.user.state.Gender;
 import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,9 +95,6 @@ public class User {
     }
 
 
-    @Transient
-    public static final DateTimeFormatter obj=DateTimeFormatter.ofPattern("DD-mm-yyyy");
-
     @Id
     @GeneratedValue(generator = "ehr-generator")
     @GenericGenerator(
@@ -121,6 +118,9 @@ public class User {
 
 
     private String maritalStatus;
+
+    @JsonIgnore
+    @ToString.Exclude
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -160,8 +160,10 @@ public class User {
     @PrePersist
     @PreUpdate
     private void encode(){
-      if(!password.isEmpty())  password= passwordEncoder.encode(this.password);
-      log.info("Password : {} and encoded pass {}",password,passwordEncoder);
+      // only hash new plain-text passwords; "$2..." means already BCrypt-hashed
+      if (password != null && !password.isEmpty() && !password.startsWith("$2")) {
+          password = passwordEncoder.encode(password);
+      }
       if (emergencyContact == null) {
           emergencyContact = new Emergency(firstName + " " + lastName, phoneNo != null ? phoneNo : 0L, "Self");
       } else if (emergencyContact.getContactPhoneNo() == null) {

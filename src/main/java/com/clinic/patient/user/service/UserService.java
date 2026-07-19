@@ -230,11 +230,10 @@ public class UserService {
 
     public UserResponseDTO updateUser(String id, UserRequestDTO dto)throws GlobalExceptionHandler{
         User user = getUserById(id,User.class);
-        MAP.copyInTheObject(dto,user);
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPassword(dto.getPassword());
-        }
-      return  MAP.map(user,UserResponseDTO::new);
+        Role originalRole = user.getRole();
+        MAP.copyInTheObject(dto,user,"role");
+        user.setRole(originalRole); // role can never be changed through a profile update
+      return  MAP.map(userRepository.save(user),UserResponseDTO::new);
     }
 
 
@@ -295,9 +294,7 @@ public class UserService {
                     .status(HttpStatus.ALREADY_REPORTED)
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
-        log.info(dto.toString());
         User user = MAP.map(dto, User::new);
-        log.info(user.toString());
         User saved = userRepository.save(user);
 
         UserResponseDTO responseDTO = MAP.map(saved, UserResponseDTO::new);

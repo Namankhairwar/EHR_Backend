@@ -50,17 +50,17 @@ public class GlobalExceptionHandler extends Exception {
         errorResponse.put("error", "Not Found Incorrect Details");
         errorResponse.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     public static ResponseEntity<Map<String, Object>> incorrectUpdate(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("status", HttpStatus.NOT_FOUND.value());
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "this form of update is restricted");
         errorResponse.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
 }

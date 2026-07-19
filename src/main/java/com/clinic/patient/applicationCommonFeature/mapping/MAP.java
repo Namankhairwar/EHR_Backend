@@ -42,15 +42,15 @@ public class MAP {
     private static<T1,T2> void execute(Set<PropertyDescriptor> localDate , T1 obj1, T2 obj2) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         for (PropertyDescriptor descriptor :localDate) {
           if(descriptor.getReadMethod().getDeclaringClass().getName().equals(obj1.getClass().getName())){
-              System.out.println(descriptor.getReadMethod().getName());
               Method method1 = obj1.getClass().getMethod(descriptor.getReadMethod().getName());
-              String invoke =method1.invoke(obj1).toString();
-
+              Object value = method1.invoke(obj1);
+              if (value == null) continue;
               Method method = obj2.getClass().getMethod(descriptor.getWriteMethod().getName(),String.class);
-            method.invoke(obj2,invoke);
+            method.invoke(obj2,value.toString());
           }else{
               Method method1 = obj1.getClass().getMethod(descriptor.getReadMethod().getName());
               String invoke =(String)(method1.invoke(obj1));
+              if (invoke == null) continue;
                   Method method = obj2.getClass().getMethod(descriptor.getWriteMethod().getName(),descriptor.getPropertyType());
                    if(descriptor.getPropertyType().getName().equals(LocalDate.class.getName()))
                     method.invoke(obj2,LocalDate.parse(invoke ,DateTimeFormatter.ofPattern("MM-dd-yyyy")));
@@ -92,7 +92,7 @@ public class MAP {
                 Arrays.stream(o).
                         collect(Collectors.toSet())
         );
-        BeanUtils.copyProperties(obj1,obj2);
+        BeanUtils.copyProperties(obj1,obj2,p.toArray(new String[]{}));
 
         // localDate identify them and parse them into string
         Set<PropertyDescriptor> LocalDateAttributes = localDatePropertyNameGive(obj1,obj2,p);
