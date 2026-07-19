@@ -8,6 +8,7 @@ import com.clinic.patient.patient.service.AllergyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('DOCTOR','ADMIN') or @accessGuard.isSelf(#patientId)")
 public class PatientController {
 
 
