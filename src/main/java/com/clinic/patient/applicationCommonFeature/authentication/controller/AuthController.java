@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -40,15 +42,15 @@ public class AuthController {
     @PostMapping("register")
     public ResponseEntity<?> createUser(@RequestBody UserRequestDTO dto) {
         try {
-            UserResponseDTO userResponseDTO = null;
-            if (dto.getRole().equals(Role.PATIENT)) {
+            if (Role.PATIENT.equals(dto.getRole())) {
                 return userService.register(dto);
-            } else if (dto.getRole().equals(Role.DOCTOR)) {
-                userResponseDTO = doctorService.saveDoctor(dto);
             }
-
-            TokenResponse tokenResponse = new TokenResponse(jwtService.generateNewToken(dto.getEmail()), jwtService.generateRefreshToken(dto.getEmail()));
-            return ResponseEntity.ok(new AuthResponse(userResponseDTO, tokenResponse));
+            if (Role.DOCTOR.equals(dto.getRole())) {
+                UserResponseDTO userResponseDTO = doctorService.saveDoctor(dto);
+                TokenResponse tokenResponse = new TokenResponse(jwtService.generateNewToken(dto.getEmail()), jwtService.generateRefreshToken(dto.getEmail()));
+                return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(userResponseDTO, tokenResponse));
+            }
+            return ResponseEntity.badRequest().body("Registration role must be PATIENT or DOCTOR");
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(GlobalExceptionHandler.internalError(new InternalException(e.getLocalizedMessage())));
@@ -70,5 +72,18 @@ public class AuthController {
                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                        .body(GlobalExceptionHandler.internalError(new InternalException("Server is not accepting response try again after some time")));
            }
+    }
+
+    /**
+     * @param body contains the refreshToken issued at login
+     * @return a fresh access + refresh token pair
+     */
+    @PostMapping("refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> body) {
+        String email = jwtService.extractEmail(body.getOrDefault("refreshToken", ""), "Refresh");
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or Expired token");
+        }
+        return ResponseEntity.ok(new TokenResponse(jwtService.generateNewToken(email), jwtService.generateRefreshToken(email)));
     }
 }
