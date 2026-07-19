@@ -35,17 +35,10 @@ public class MedicineService {
     private final DoctorRepository doctorRepository;
 
     // getting the medicine page
-    @SuppressWarnings("unchecked")
     public Page<MedicineResponse> getAllMedicineByPatientId(String id,int number , int size,String property){
-        Sort sort =  Sort.by(property).descending();
-        Pageable pageable = PageRequest.of(number, size, sort);
-        return (Page<MedicineResponse>)
-                medicineRepository.
-                        findAllByPatient_EhrIdOrderByPrescribedOn(id,pageable).
-                        stream()
-                        .map(t-> MAP.map(t,MedicineResponse::new)
-                        )
-                ;
+        Pageable pageable = PageRequest.of(number, size, Sort.by(property).descending());
+        return medicineRepository.findAllByPatient_EhrIdOrderByPrescribedOn(id, pageable)
+                .map(t -> MAP.map(t, MedicineResponse::new));
     }
 
 

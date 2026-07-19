@@ -11,6 +11,7 @@ import com.clinic.patient.user.dto.UserRequestDTO;
 import lombok.AllArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
@@ -41,70 +42,65 @@ public class DoctorController {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#id)")
     @PutMapping("/{id}/profile")
     public ResponseEntity<?> updateDoctor(@PathVariable String id, @RequestBody UserRequestDTO userRequestDTO) {
-      try{
-         Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
-        if (existingDoctorOpt.isPresent()) {
-
-       MAP.copyInTheObject(userRequestDTO,existingDoctorOpt.get().getUser(),"role","password");
-          MAP.copyInTheObject(userRequestDTO,existingDoctorOpt.get());
-            doctorService.updateDoctor(id,existingDoctorOpt.get());
-        return  ResponseEntity.ok().build();
-      }else{
-              return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));  
-      }
-    }catch(Exception e){
-        return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));
-      }
-
+        Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
+        if (existingDoctorOpt.isEmpty()) {
+            return GlobalExceptionHandler.notFound(new Exception("There is no doctor register with this ehrId"));
+        }
+        try {
+            Doctor doctor = existingDoctorOpt.get();
+            MAP.copyInTheObject(userRequestDTO, doctor.getUser(), "role", "password");
+            MAP.copyInTheObject(userRequestDTO, doctor);
+            doctorRepository.save(doctor);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return GlobalExceptionHandler.incorrectUpdate(e);
+        }
     }
 
 
 
-       @PatchMapping("/{id}/password")
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#id)")
+    @PatchMapping("/{id}/password")
     public ResponseEntity<?> updateDoctorPassword(@PathVariable String id, @RequestBody UserRequestDTO userRequestDTO) {
-      try{
-         Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
-        if (existingDoctorOpt.isPresent()) {
-
-       MAP.copyInTheObjectRequired(userRequestDTO,existingDoctorOpt.get().getUser(),"password");
-       return ResponseEntity.ok().build();
-        } 
-              return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));  
-    
-    }catch(Exception e){
-        return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));
-      }
-
+        Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
+        if (existingDoctorOpt.isEmpty() || userRequestDTO.getPassword() == null || userRequestDTO.getPassword().isEmpty()) {
+            return GlobalExceptionHandler.incorrectUpdate(new Exception("Doctor not found or password missing"));
+        }
+        Doctor doctor = existingDoctorOpt.get();
+        doctor.getUser().setPassword(userRequestDTO.getPassword());
+        doctorRepository.save(doctor);
+        return ResponseEntity.ok().build();
     }
 
-      @PutMapping("/{id}/degrees")
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#id)")
+    @PutMapping("/{id}/degrees")
     public ResponseEntity<?> updateDoctorDegrees(@PathVariable String id, @RequestBody UserRequestDTO userRequestDTO) {
-      try{
-         Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
-        if (existingDoctorOpt.isPresent()) {
-          
-          MAP.copyInTheObjectRequired(userRequestDTO,existingDoctorOpt.get(),"doctorProfile");
-        return  ResponseEntity.ok(doctorService.updateDoctor(id,existingDoctorOpt.get()));
-      }else{
-              return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));  
-      }
-    }catch(Exception e){
-        return  GlobalExceptionHandler.incorrectUpdate(new ClassNotFoundException("try again later"));
-      }
-
+        Optional<Doctor> existingDoctorOpt = doctorRepository.findById(id);
+        if (existingDoctorOpt.isEmpty() || userRequestDTO.getDoctorProfile() == null) {
+            return GlobalExceptionHandler.incorrectUpdate(new Exception("Doctor not found or degrees missing"));
+        }
+        Doctor doctor = existingDoctorOpt.get();
+        if (doctor.getDoctorProfile() == null) {
+            doctor.setDoctorProfile(userRequestDTO.getDoctorProfile());
+        } else {
+            doctor.getDoctorProfile().setDegrees(userRequestDTO.getDoctorProfile().getDegrees());
+        }
+        return ResponseEntity.ok(doctorRepository.save(doctor));
     }
 
 
     // Delete Doctor
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDoctor(@PathVariable String id) {
       try {
           doctorService.deleteDoctor(id);
           return ResponseEntity.noContent().build();
       }catch(Exception e){
-          return  GlobalExceptionHandler.incorrectUpdate(new NoSuchFieldException("There is no doctor register with this ehrId"));
+          return  GlobalExceptionHandler.notFound(new Exception("There is no doctor register with this ehrId"));
       }
     }
 

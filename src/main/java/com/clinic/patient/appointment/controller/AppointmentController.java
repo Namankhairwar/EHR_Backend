@@ -5,6 +5,7 @@ import com.clinic.patient.appointment.service.AppointmentService;
 import com.clinic.patient.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +24,7 @@ public class AppointmentController {
     }
 
     // Get All Appointments
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN') or @accessGuard.isSelf(#user_id)")
     @GetMapping("all/{user_id}")
     public ResponseEntity<?> getAllAppointments(@PathVariable("user_id") String user_id ,
                                                 @RequestParam(value="size" , defaultValue = "5") int size,
