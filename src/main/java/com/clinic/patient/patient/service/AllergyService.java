@@ -8,16 +8,16 @@ import java.util.List;
 public interface AllergyService {
 
     AllergyResponseDTO createAllergy(
-            Long patientId,
+            String patientId,
             AllergyRequestDTO dto
     );
 
-    List<AllergyResponseDTO> getPatientAllergies(Long patientId);
+    List<AllergyResponseDTO> getPatientAllergies(String patientId);
 
     void deleteAllergy(
-            Long patientId,
+            String patientId,
             Long allergyId
     );
 
-   boolean check(long patientId , AllergyRequestDTO dto);
+   boolean check(String patientId , AllergyRequestDTO dto);
 }

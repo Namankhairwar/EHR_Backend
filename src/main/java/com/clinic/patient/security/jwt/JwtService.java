@@ -5,11 +5,9 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -25,51 +23,46 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
     @Value("${jwt.refresh-expiration}")
-    private String refresh_expiration;
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
-
-
+    private long refreshExpiration;
 
     public String generateNewToken(String email) {
- return Jwts.builder()
-                .setSubject(email)
-                .claim("type", "Access")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-          .setExpiration(new Date(System.currentTimeMillis()+expiration))
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
-                .compact();
-         }
+        return buildToken(email, "Access", expiration);
+    }
 
-    public String generateRefreshToken(String email){
-        logger.info("Generating the refresh Tokens for : {}",email);
+    public String generateRefreshToken(String email) {
+        return buildToken(email, "Refresh", refreshExpiration);
+    }
+
+    private String buildToken(String email, String type, long validity) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("type","Refresh")
+                .claim("type", type)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+expiration))
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)),SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + validity))
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-
-
-    public boolean validateToken(String token){
-        try{
-            logger.info("Validating the token {}",token);
-            Jwts.
-                    parserBuilder().
-                    setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).
-                    build().parseClaimsJws(token).getBody().getSubject();
-            logger.info("Successfully validate the token ");
-            return true;
-        }catch(ExpiredJwtException e){
-        logger.warn("Token is expired");
+    /**
+     * Returns the email (subject) of a valid, unexpired token of the expected
+     * type ("Access" or "Refresh"), or null when the token is invalid.
+     */
+    public String extractEmail(String token, String expectedType) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                    .build().parseClaimsJws(token).getBody();
+            if (!expectedType.equals(claims.get("type", String.class))) {
+                log.warn("Token type mismatch");
+                return null;
+            }
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            log.warn("Token is expired");
+        } catch (JwtException e) {
+            log.warn("Token validation failed");
         }
-        catch(JwtException e){
-            logger.error("Token validation is failed");
-        }
-        return false;
+        return null;
     }
 
 }

@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReportResponseDto {
     private long id;
-    private Long patientId;
+    private String patientId;
     private String patientName;
-    private Long doctorId;
+    private String doctorId;
     private String doctorName;
     private String dateTime;
     private String info;

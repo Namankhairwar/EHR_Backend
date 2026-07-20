@@ -4,7 +4,6 @@ import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.medication.entity.Medicine;
 import com.clinic.patient.user.entity.User;
 import lombok.*;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Builder
 @AllArgsConstructor

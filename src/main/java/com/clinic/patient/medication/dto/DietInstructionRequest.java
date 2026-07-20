@@ -1,6 +1,5 @@
 package com.clinic.patient.medication.dto;
 
-import com.clinic.patient.doctor.entity.Doctor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +13,6 @@ public class DietInstructionRequest {
     private String food_description;
 
 
-    private long prescribeBy;
+    private String prescribeBy;
 
 }

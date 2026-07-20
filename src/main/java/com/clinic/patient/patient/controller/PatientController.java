@@ -1,5 +1,6 @@
 package com.clinic.patient.patient.controller;
 
+import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.patient.dto.AllergyRequestDTO;
 import com.clinic.patient.patient.dto.AllergyResponseDTO;
 import com.clinic.patient.patient.entity.Allergy;
@@ -8,14 +9,15 @@ import com.clinic.patient.patient.service.AllergyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('DOCTOR','ADMIN') or @accessGuard.isSelf(#patientId)")
 public class PatientController {
 
 
@@ -25,7 +27,7 @@ public class PatientController {
 
     @PostMapping("/{patientId}/allergies")
     public ResponseEntity<AllergyResponseDTO> createAllergy(
-            @PathVariable Long patientId,
+            @PathVariable String patientId,
             @RequestBody AllergyRequestDTO dto
     ) {
        allergyService.createAllergy(patientId, dto);
@@ -38,7 +40,7 @@ public class PatientController {
 
     @PutMapping("/{patientId}/allergies")
     public ResponseEntity<Void> updateAllergy(
-            @PathVariable Long patientId,
+            @PathVariable String patientId,
             @RequestBody AllergyRequestDTO dto
     ) {
 
@@ -46,12 +48,17 @@ public class PatientController {
                 allergyService.check(patientId,dto);
         if (!alreadyExists) {
             throw new RuntimeException(
-                    "This allergy is already registered for the patient"
+                    "This allergy is not registered for the patient"
             );
         }
 
-        Optional<Allergy> byallergyid = allergyRepository.findByallergyid(patientId);
-       allergyRepository.save(byallergyid.get());
+        Allergy allergy = allergyRepository.findAllByPatient_EhrId(patientId).stream()
+                .filter(a -> a.getAllergyType() == dto.getAllergyType())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Allergy not found"));
+
+        MAP.copyInTheObject(dto, allergy);
+        allergyRepository.save(allergy);
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .build();
@@ -62,7 +69,7 @@ public class PatientController {
 
     @GetMapping("/{patientId}/allergies")
     public ResponseEntity<List<AllergyResponseDTO>> getPatientAllergies(
-            @PathVariable Long patientId
+            @PathVariable String patientId
     ) {
 
         return ResponseEntity.ok(
@@ -72,7 +79,7 @@ public class PatientController {
 
     @DeleteMapping("/{patientId}/allergies/{allergyId}")
     public ResponseEntity<Void> deleteAllergy(
-            @PathVariable Long patientId,
+            @PathVariable String patientId,
             @PathVariable Long allergyId
     ) {
 

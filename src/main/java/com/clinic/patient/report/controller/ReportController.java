@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,14 +20,16 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @PostMapping("")
     public ResponseEntity<?> addReport(@RequestBody ReportRequestDto dto) {
         reportService.addReport(dto);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN') or @accessGuard.isSelf(#patientId)")
     @GetMapping("patient/{patientId}")
-    public ResponseEntity<List<ReportResponseDto>> getReportsByPatient(@PathVariable("patientId") long patientId) {
+    public ResponseEntity<List<ReportResponseDto>> getReportsByPatient(@PathVariable("patientId") String patientId) {
         return ResponseEntity.ok(reportService.getReportsByPatientId(patientId));
     }
 
