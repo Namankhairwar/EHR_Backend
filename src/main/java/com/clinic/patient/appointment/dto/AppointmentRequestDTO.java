@@ -13,8 +13,6 @@ public class AppointmentRequestDTO {
     private String startTime;
     private String lastTime;
     private Long charge;
-    private Long total_seat;
-    private Long available_seat;
 
 
 }

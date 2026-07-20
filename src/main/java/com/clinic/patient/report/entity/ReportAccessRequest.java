@@ -4,7 +4,10 @@ import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.report.state.ReportAccessStatus;
 import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 

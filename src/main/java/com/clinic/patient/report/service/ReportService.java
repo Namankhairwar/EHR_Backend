@@ -1,24 +1,25 @@
 package com.clinic.patient.report.service;
 
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.service.DoctorService;
-import com.clinic.patient.report.dto.ReportRequestDto;
-import com.clinic.patient.report.dto.ReportResponseDto;
+import com.clinic.patient.notification.service.NotificationService;
 import com.clinic.patient.report.dto.ReportAccessRequestDto;
 import com.clinic.patient.report.dto.ReportAccessRequestResponseDto;
+import com.clinic.patient.report.dto.ReportRequestDto;
+import com.clinic.patient.report.dto.ReportResponseDto;
 import com.clinic.patient.report.entity.Report;
 import com.clinic.patient.report.entity.ReportAccessRequest;
-import com.clinic.patient.report.repositories.ReportRepository;
 import com.clinic.patient.report.repositories.ReportAccessRequestRepository;
+import com.clinic.patient.report.repositories.ReportRepository;
 import com.clinic.patient.report.state.ReportAccessStatus;
 import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.UserRepository;
-import com.clinic.patient.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,22 +82,31 @@ public class ReportService {
         }
     }
 
-    public List<ReportResponseDto> getReportsByPatientId(String patientId) {
+    /**
+     * Doctors may only read a patient's reports after the patient approved
+     * their access request; admins and the patient themselves are always allowed.
+     */
+    private void checkReportAccess(String patientId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            String email = (String) authentication.getPrincipal();
-            User currentUser = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            if (currentUser.getRole() == com.clinic.patient.applicationCommonFeature.state.Role.DOCTOR) {
-                boolean hasAccess = reportAccessRequestRepository
-                        .findByDoctor_IdAndPatient_EhrId(currentUser.getEhrId(), patientId)
-                        .map(req -> req.getStatus() == ReportAccessStatus.APPROVED)
-                        .orElse(false);
-                if (!hasAccess) {
-                    throw new AccessDeniedException("Access denied. You do not have approved report access to this patient's reports.");
-                }
-            }
+        if (authentication == null) {
+            return;
         }
+        User currentUser = userRepository.findByEmail((String) authentication.getPrincipal())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (currentUser.getRole() == Role.ADMIN || currentUser.getEhrId().equals(patientId)) {
+            return;
+        }
+        boolean hasAccess = currentUser.getRole() == Role.DOCTOR && reportAccessRequestRepository
+                .findByDoctor_IdAndPatient_EhrId(currentUser.getEhrId(), patientId)
+                .map(req -> req.getStatus() == ReportAccessStatus.APPROVED)
+                .orElse(false);
+        if (!hasAccess) {
+            throw new AccessDeniedException("Access denied. You do not have approved report access to this patient's reports.");
+        }
+    }
+
+    public List<ReportResponseDto> getReportsByPatientId(String patientId) {
+        checkReportAccess(patientId);
 
         return reportRepository.findAllByPatient_EhrIdOrderByDateTimeDesc(patientId).stream()
                 .map(r -> {
@@ -111,8 +121,10 @@ public class ReportService {
     }
 
     public Report getReportFile(long id) {
-        return reportRepository.findById(id)
+        Report report = reportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Report not found"));
+        checkReportAccess(report.getPatient().getEhrId());
+        return report;
     }
 
     @Transactional

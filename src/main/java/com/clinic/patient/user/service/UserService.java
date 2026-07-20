@@ -7,25 +7,26 @@ import com.clinic.patient.applicationCommonFeature.authentication.dto.login.Logi
 import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginResponse;
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.applicationCommonFeature.state.Role;
+import com.clinic.patient.notification.service.NotificationService;
+import com.clinic.patient.security.jwt.JwtService;
+import com.clinic.patient.user.dto.RestrictionGrantResponseDto;
+import com.clinic.patient.user.dto.RestrictionRequestDto;
 import com.clinic.patient.user.dto.UserRequestDTO;
 import com.clinic.patient.user.dto.UserResponseDTO;
-import com.clinic.patient.user.dto.RestrictionRequestDto;
-import com.clinic.patient.user.dto.RestrictionGrantResponseDto;
-import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.entity.RestrictionGrant;
-import com.clinic.patient.user.repositories.UserRepository;
+import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.RestrictionGrantRepository;
+import com.clinic.patient.user.repositories.UserRepository;
 import com.clinic.patient.user.state.RestrictionGrantStatus;
-import com.clinic.patient.security.jwt.JwtService;
-import com.clinic.patient.notification.service.NotificationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.AlreadyBuiltException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +66,7 @@ public class UserService {
     public void filterUserResponse(UserResponseDTO dto) {
         User currentUser = getCurrentUser();
         if (currentUser != null) {
-            if (currentUser.getRole() == com.clinic.patient.applicationCommonFeature.state.Role.ADMIN ||
+            if (currentUser.getRole() == Role.ADMIN ||
                 currentUser.getEhrId().equals(dto.getEhrId())) {
                 return;
             }
@@ -229,11 +230,10 @@ public class UserService {
 
     public UserResponseDTO updateUser(String id, UserRequestDTO dto)throws GlobalExceptionHandler{
         User user = getUserById(id,User.class);
-        MAP.copyInTheObject(dto,user);
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPassword(dto.getPassword());
-        }
-      return  MAP.map(user,UserResponseDTO::new);
+        Role originalRole = user.getRole();
+        MAP.copyInTheObject(dto,user,"role");
+        user.setRole(originalRole); // role can never be changed through a profile update
+      return  MAP.map(userRepository.save(user),UserResponseDTO::new);
     }
 
 
@@ -294,9 +294,7 @@ public class UserService {
                     .status(HttpStatus.ALREADY_REPORTED)
                     .body(GlobalExceptionHandler.internalError(new AlreadyBuiltException("Already Exist account")));
         }
-        log.info(dto.toString());
         User user = MAP.map(dto, User::new);
-        log.info(user.toString());
         User saved = userRepository.save(user);
 
         UserResponseDTO responseDTO = MAP.map(saved, UserResponseDTO::new);

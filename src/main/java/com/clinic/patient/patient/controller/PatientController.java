@@ -1,5 +1,6 @@
 package com.clinic.patient.patient.controller;
 
+import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.patient.dto.AllergyRequestDTO;
 import com.clinic.patient.patient.dto.AllergyResponseDTO;
 import com.clinic.patient.patient.entity.Allergy;
@@ -8,14 +9,15 @@ import com.clinic.patient.patient.service.AllergyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('DOCTOR','ADMIN') or @accessGuard.isSelf(#patientId)")
 public class PatientController {
 
 
@@ -55,7 +57,7 @@ public class PatientController {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Allergy not found"));
 
-        com.clinic.patient.applicationCommonFeature.mapping.MAP.copyInTheObject(dto, allergy);
+        MAP.copyInTheObject(dto, allergy);
         allergyRepository.save(allergy);
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)

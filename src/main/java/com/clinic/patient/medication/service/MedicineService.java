@@ -1,6 +1,8 @@
 package com.clinic.patient.medication.service;
 
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.doctor.entity.Doctor;
+import com.clinic.patient.doctor.repositories.DoctorRepository;
 import com.clinic.patient.medication.dto.DietInstructionResponse;
 import com.clinic.patient.medication.dto.MedicineRequest;
 import com.clinic.patient.medication.dto.MedicineResponse;
@@ -10,14 +12,8 @@ import com.clinic.patient.medication.repositories.DietInstructionRepository;
 import com.clinic.patient.medication.repositories.MedicineRepository;
 import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.UserRepository;
-import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.doctor.repositories.DoctorRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,17 +31,10 @@ public class MedicineService {
     private final DoctorRepository doctorRepository;
 
     // getting the medicine page
-    @SuppressWarnings("unchecked")
     public Page<MedicineResponse> getAllMedicineByPatientId(String id,int number , int size,String property){
-        Sort sort =  Sort.by(property).descending();
-        Pageable pageable = PageRequest.of(number, size, sort);
-        return (Page<MedicineResponse>)
-                medicineRepository.
-                        findAllByPatient_EhrIdOrderByPrescribedOn(id,pageable).
-                        stream()
-                        .map(t-> MAP.map(t,MedicineResponse::new)
-                        )
-                ;
+        Pageable pageable = PageRequest.of(number, size, Sort.by(property).descending());
+        return medicineRepository.findAllByPatient_EhrIdOrderByPrescribedOn(id, pageable)
+                .map(t -> MAP.map(t, MedicineResponse::new));
     }
 
 
