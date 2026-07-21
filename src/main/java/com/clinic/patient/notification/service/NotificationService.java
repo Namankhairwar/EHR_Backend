@@ -4,6 +4,9 @@ import com.clinic.patient.notification.entity.Notification;
 import com.clinic.patient.notification.repositories.NotificationRepository;
 import com.clinic.patient.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,14 @@ public class NotificationService {
     public void markAsRead(long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin && (auth == null || !notification.getUser().getEmail().equals(auth.getName()))) {
+            throw new AccessDeniedException("You can only mark your own notifications as read");
+        }
+
         notification.setReadStatus(true);
         notificationRepository.save(notification);
     }

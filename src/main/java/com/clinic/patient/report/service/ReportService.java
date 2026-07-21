@@ -158,10 +158,25 @@ public class ReportService {
         notificationService.createNotification(patient, message);
     }
 
+    /** Only the patient the request targets (or an admin) may respond to it. */
+    private void checkRequestOwnership(ReportAccessRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("Not authenticated");
+        }
+        User currentUser = userRepository.findByEmail((String) authentication.getPrincipal())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (currentUser.getRole() != Role.ADMIN
+                && !request.getPatient().getEhrId().equals(currentUser.getEhrId())) {
+            throw new AccessDeniedException("You can only respond to your own report access requests");
+        }
+    }
+
     @Transactional
     public void approveAccess(Long requestId) {
         ReportAccessRequest request = reportAccessRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
+        checkRequestOwnership(request);
         request.setStatus(ReportAccessStatus.APPROVED);
         request.setRespondedAt(LocalDateTime.now());
         reportAccessRequestRepository.save(request);
@@ -175,6 +190,7 @@ public class ReportService {
     public void rejectAccess(Long requestId) {
         ReportAccessRequest request = reportAccessRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
+        checkRequestOwnership(request);
         request.setStatus(ReportAccessStatus.REJECTED);
         request.setRespondedAt(LocalDateTime.now());
         reportAccessRequestRepository.save(request);
