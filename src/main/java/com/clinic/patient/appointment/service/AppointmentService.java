@@ -241,6 +241,39 @@ public class AppointmentService {
         return ResponseEntity.ok(list);
     }
 
+    /** Doctor's queue: all appointments, or one day's, ordered by token number. */
+    public ResponseEntity<?> listAppointmentsByDoctor(String doctorId, String date) {
+        List<AppointmentBook> list;
+        if (date != null && !date.isEmpty()) {
+            LocalDate day;
+            try {
+                day = LocalDate.parse(date, DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Invalid date format. Expected MM-dd-yyyy");
+            }
+            list = appointmentRepository.findAllByDoctor_IdAndAppointmentTime_Date(doctorId, day);
+        } else {
+            list = appointmentRepository.findAllByDoctor_Id(doctorId);
+        }
+
+        List<AppointmentResponseDTO> dtos = list.stream()
+                .map(t -> {
+                    AppointmentResponseDTO dto = MAP.map(t, AppointmentResponseDTO::new);
+                    if (t.getAppointmentTime() != null) {
+                        MAP.copyInTheObject(t.getAppointmentTime(), dto);
+                    }
+                    dto.setPatientId(t.getPatient().getEhrId());
+                    dto.setPatientName(t.getPatient().getFirstName() + " " + t.getPatient().getLastName());
+                    dto.setDoctorId(t.getDoctor().getId());
+                    return dto;
+                })
+                .sorted(java.util.Comparator.comparing(
+                        AppointmentResponseDTO::getTokenNumber,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
     public ResponseEntity<?> getAppointmentById(long id){
         Optional<AppointmentBook> appointment = appointmentRepository.getAppointmentById(id);
         if(appointment.isEmpty()){
