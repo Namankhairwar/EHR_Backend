@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class AppointmentResponseDTO {
 
     private long token;
+    private Integer tokenNumber;
     private String patientId;
     private String doctorId;
     private String date;

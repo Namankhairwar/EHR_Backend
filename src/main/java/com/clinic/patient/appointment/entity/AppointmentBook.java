@@ -18,6 +18,9 @@ public class AppointmentBook {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long token;
 
+    // sequential queue number per doctor per date: 1, 2, 3...
+    private Integer tokenNumber;
+
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = AppointmentTime.class)
     @JoinColumn(name = "appointment_time_id", nullable = false)
     private AppointmentTime appointmentTime;
