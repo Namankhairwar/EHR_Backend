@@ -67,6 +67,10 @@ public class PatientController {
 
 
 
+    // Allergies are critical info: a doctor needs the patient's approval
+    // (restriction grant containing "allergies") to view them.
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#patientId) " +
+            "or (hasRole('DOCTOR') and @accessGuard.hasApprovedAttribute(#patientId, 'allergies'))")
     @GetMapping("/{patientId}/allergies")
     public ResponseEntity<List<AllergyResponseDTO>> getPatientAllergies(
             @PathVariable String patientId
