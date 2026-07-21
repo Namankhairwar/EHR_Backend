@@ -36,6 +36,15 @@ public class AppointmentController {
         return ResponseEntity.notFound().build();
     }
 
+    // Doctor's appointment queue (all, or one day with ?date=MM-dd-yyyy)
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#doctorId)")
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<?> getAppointmentsByDoctor(
+            @PathVariable("doctorId") String doctorId,
+            @RequestParam(value = "date", required = false) String date) {
+        return appointmentService.listAppointmentsByDoctor(doctorId, date);
+    }
+
     // Update Appointment
     @PutMapping("/{id}/reschedule")
     public ResponseEntity<?> updateAppointment(

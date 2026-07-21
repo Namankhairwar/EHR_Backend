@@ -24,4 +24,6 @@ public interface AppointmentRepository extends JpaRepository<AppointmentBook, Lo
     List<AppointmentBook> getAllByPatient_EhrId(String patientEhrId, Pageable pageable);
 
     List<AppointmentBook> findAllByDoctor_IdAndAppointmentTime_Date(String doctorId, LocalDate date);
+
+    List<AppointmentBook> findAllByDoctor_Id(String doctorId);
 }

@@ -29,6 +29,8 @@ public class AppointmentTimeDoctor {
     private LocalTime startSchedule;
 
     private LocalTime endSchedule;
+
+    @Enumerated(EnumType.STRING)
     private Days days;
 
 

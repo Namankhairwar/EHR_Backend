@@ -3,7 +3,9 @@ package com.clinic.patient.doctor.controller;
 
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.appointment.dto.DoctorScheduleDTO;
 import com.clinic.patient.doctor.dto.DoctorResponse;
+import com.clinic.patient.doctor.dto.DoctorSummaryDTO;
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.repositories.DoctorRepository;
 import com.clinic.patient.doctor.service.DoctorService;
@@ -29,8 +31,8 @@ public class DoctorController {
 
     // Get All Doctors
     @GetMapping("/all")
-    public ResponseEntity<List<Doctor>> getAllDoctors() {
-        return ResponseEntity.ok(doctorService.getAllDoctors());
+    public ResponseEntity<List<DoctorSummaryDTO>> getAllDoctors() {
+        return ResponseEntity.ok(doctorService.getAllDoctorSummaries());
     }
 
     // Get Doctor by ID
@@ -104,7 +106,25 @@ public class DoctorController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Doctor>> searchDoctors(@RequestParam("query") String query) {
-        return ResponseEntity.ok(doctorRepository.searchDoctors(query));
+    public ResponseEntity<List<DoctorSummaryDTO>> searchDoctors(@RequestParam("query") String query) {
+        return ResponseEntity.ok(doctorService.searchDoctorSummaries(query));
+    }
+
+    // Weekly availability: readable by anyone logged in (patients need it to book)
+    @GetMapping("/{id}/schedule")
+    public ResponseEntity<List<DoctorScheduleDTO>> getSchedule(@PathVariable String id) {
+        return ResponseEntity.ok(doctorService.getSchedule(id));
+    }
+
+    // Only the doctor (or an admin) can set their availability
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#id)")
+    @PutMapping("/{id}/schedule")
+    public ResponseEntity<?> setSchedule(@PathVariable String id, @RequestBody List<DoctorScheduleDTO> schedule) {
+        try {
+            doctorService.setSchedule(id, schedule);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

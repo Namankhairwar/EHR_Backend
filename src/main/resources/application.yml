@@ -1,11 +1,16 @@
-
 server:
-  port: 8086
+  port: ${PORT:8086}
+
 spring:
+  application:
+    name: patient
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require&user=postgres&password=SkyBags@2026
-    username: postgres
-    password: SkyBags@2026
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -16,7 +21,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  jackson:
+    default-property-inclusion: non_empty
+
 jwt:
-  secret: c7f75eaa04c8749f73a74496b669a862f00bba7033e0a8e8279f6b3d7f1be2c9
+  secret: ${JWT_SECRET}
   expiration: 86400000
   refresh-expiration: 604800000

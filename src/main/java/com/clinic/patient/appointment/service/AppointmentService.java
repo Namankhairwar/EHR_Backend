@@ -5,8 +5,11 @@ import com.clinic.patient.appointment.dto.AppointmentRequestDTO;
 import com.clinic.patient.appointment.dto.AppointmentResponseDTO;
 import com.clinic.patient.appointment.entity.AppointmentBook;
 import com.clinic.patient.appointment.entity.AppointmentTime;
+import com.clinic.patient.appointment.entity.AppointmentTimeDoctor;
 import com.clinic.patient.appointment.repositories.AppointmentRepository;
+import com.clinic.patient.appointment.repositories.AppointmentTimeDoctorRepository;
 import com.clinic.patient.appointment.state.AppointmentStatus;
+import com.clinic.patient.appointment.state.Days;
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.service.DoctorService;
 import com.clinic.patient.notification.service.NotificationService;
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentTimeDoctorRepository appointmentTimeDoctorRepository;
     private final DoctorService doctorService;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
@@ -51,6 +55,18 @@ public class AppointmentService {
             return ResponseEntity.badRequest().body("Appointment time cannot be in the past");
         }
         
+        // 0. Check the doctor's configured weekly availability (if any is set)
+        List<AppointmentTimeDoctor> schedule = appointmentTimeDoctorRepository.findAllByDoctor_Id(doctorId);
+        if (!schedule.isEmpty()) {
+            Days day = Days.valueOf(date.getDayOfWeek().name());
+            boolean withinSchedule = schedule.stream()
+                    .filter(s -> s.getDays() == day)
+                    .anyMatch(s -> !startTime.isBefore(s.getStartSchedule()) && !lastTime.isAfter(s.getEndSchedule()));
+            if (!withinSchedule) {
+                return ResponseEntity.badRequest().body("Doctor is not available on " + day.name() + " at this time. Please check the doctor's schedule.");
+            }
+        }
+
         // 1. Check Doctor Overlaps
         List<AppointmentBook> doctorAppointments = appointmentRepository.findAllByDoctor_IdAndAppointmentTime_Date(doctorId, date);
         for (AppointmentBook app : doctorAppointments) {
@@ -82,6 +98,16 @@ public class AppointmentService {
         }
         
         return null; // No overlaps
+    }
+
+    /** Next queue number for a doctor on a date: 1 for the first appointment, then 2, 3... */
+    private int nextTokenNumber(String doctorId, LocalDate date, Long excludeToken) {
+        return appointmentRepository.findAllByDoctor_IdAndAppointmentTime_Date(doctorId, date).stream()
+                .filter(a -> excludeToken == null || a.getToken() != excludeToken)
+                .map(AppointmentBook::getTokenNumber)
+                .filter(java.util.Objects::nonNull)
+                .max(Integer::compareTo)
+                .orElse(0) + 1;
     }
 
     @Transactional
@@ -123,12 +149,13 @@ public class AppointmentService {
         appointmentBook.setDoctor(doctorOpt.get());
         appointmentBook.setAppointmentTime(appointmentTime);
         appointmentBook.setStatus(AppointmentStatus.SCHEDULED);
+        appointmentBook.setTokenNumber(nextTokenNumber(appointmentRequestDTO.getDoctorId(), date, null));
 
         appointmentRepository.save(appointmentBook);
 
         // Notify Patient
         String doctorName = doctorOpt.get().getUser().getFirstName() + " " + doctorOpt.get().getUser().getLastName();
-        String message = "Your appointment with Dr. " + doctorName + " has been scheduled for " + appointmentTime.getDate() + " at " + appointmentTime.getStartTime();
+        String message = "Your appointment with Dr. " + doctorName + " has been scheduled for " + appointmentTime.getDate() + " at " + appointmentTime.getStartTime() + ". Your token number is " + appointmentBook.getTokenNumber() + ".";
         notificationService.createNotification(patientOpt.get(), message);
 
         return mapping(appointmentBook, patientOpt.get(), doctorOpt.get());
@@ -173,12 +200,19 @@ public class AppointmentService {
             return overlapCheck;
         }
 
+        LocalDate oldDate = appointment.getAppointmentTime() != null ? appointment.getAppointmentTime().getDate() : null;
+
         MAP.copyInTheObject(appointmentRequestDTO, appointment);
-        
+
         if (appointment.getAppointmentTime() != null) {
             MAP.copyInTheObject(appointmentRequestDTO, appointment.getAppointmentTime());
         }
-        
+
+        // moving to another day means joining that day's queue at the end
+        if (!date.equals(oldDate)) {
+            appointment.setTokenNumber(nextTokenNumber(appointment.getDoctor().getId(), date, id));
+        }
+
         appointmentRepository.save(appointment);
 
         // Notify Patient
@@ -205,6 +239,39 @@ public class AppointmentService {
                 })
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
+    }
+
+    /** Doctor's queue: all appointments, or one day's, ordered by token number. */
+    public ResponseEntity<?> listAppointmentsByDoctor(String doctorId, String date) {
+        List<AppointmentBook> list;
+        if (date != null && !date.isEmpty()) {
+            LocalDate day;
+            try {
+                day = LocalDate.parse(date, DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Invalid date format. Expected MM-dd-yyyy");
+            }
+            list = appointmentRepository.findAllByDoctor_IdAndAppointmentTime_Date(doctorId, day);
+        } else {
+            list = appointmentRepository.findAllByDoctor_Id(doctorId);
+        }
+
+        List<AppointmentResponseDTO> dtos = list.stream()
+                .map(t -> {
+                    AppointmentResponseDTO dto = MAP.map(t, AppointmentResponseDTO::new);
+                    if (t.getAppointmentTime() != null) {
+                        MAP.copyInTheObject(t.getAppointmentTime(), dto);
+                    }
+                    dto.setPatientId(t.getPatient().getEhrId());
+                    dto.setPatientName(t.getPatient().getFirstName() + " " + t.getPatient().getLastName());
+                    dto.setDoctorId(t.getDoctor().getId());
+                    return dto;
+                })
+                .sorted(java.util.Comparator.comparing(
+                        AppointmentResponseDTO::getTokenNumber,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     public ResponseEntity<?> getAppointmentById(long id){

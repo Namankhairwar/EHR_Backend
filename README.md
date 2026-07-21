@@ -52,12 +52,16 @@ cd EHR_Backend
 
 ### Configure Database
 
-Update `application.properties`
+Copy `.env.example` to `.env` and fill in the values. The app reads these via
+`application.yml`; in production set them as environment variables instead.
+The actual values are kept in **`docs/credentials.md`** (git-ignored) — see that
+file, not this README.
 
 ```properties
-spring.datasource.url=jdbc:postgresql://db.ocbxteztnmvkfdoiidco.supabase.co:5432/clinic
-spring.datasource.username=postgres
-spring.datasource.password=SkyBags@2026
+DB_URL=<db url in doc>
+DB_USERNAME=<username in doc>
+DB_PASSWORD=<password in doc>
+JWT_SECRET=<jwt secret in doc>
 ```
 
 ### Build Project

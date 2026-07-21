@@ -17,6 +17,7 @@ public class RestrictionController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @PostMapping("/request")
     public ResponseEntity<Void> requestRestriction(@RequestBody RestrictionRequestDto dto) {
         userService.requestRestrictionGrant(dto);

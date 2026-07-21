@@ -145,10 +145,20 @@ public class UserService {
         notificationService.createNotification(patient, message);
     }
 
+    /** Only the patient the request targets (or an admin) may respond to it. */
+    private void checkGrantOwnership(RestrictionGrant grant) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null || (currentUser.getRole() != Role.ADMIN
+                && !grant.getPatient().getEhrId().equals(currentUser.getEhrId()))) {
+            throw new RuntimeException("You can only respond to your own permission requests");
+        }
+    }
+
     @Transactional
     public void approveRestrictionGrant(Long requestId, List<String> attributes) {
         RestrictionGrant grant = restrictionGrantRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Restriction grant request not found"));
+        checkGrantOwnership(grant);
         grant.setStatus(RestrictionGrantStatus.APPROVED);
         if (attributes != null) {
             grant.setRestrictedAttributes(String.join(",", attributes));
@@ -165,6 +175,7 @@ public class UserService {
     public void rejectRestrictionGrant(Long requestId) {
         RestrictionGrant grant = restrictionGrantRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Restriction grant request not found"));
+        checkGrantOwnership(grant);
         grant.setStatus(RestrictionGrantStatus.REJECTED);
         grant.setRespondedAt(LocalDateTime.now());
         restrictionGrantRepository.save(grant);
