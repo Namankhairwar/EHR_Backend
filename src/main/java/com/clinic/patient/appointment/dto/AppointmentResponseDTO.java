@@ -13,6 +13,7 @@ public class AppointmentResponseDTO {
     private long token;
     private Integer tokenNumber;
     private String patientId;
+    private String patientName;
     private String doctorId;
     private String date;
     private String startTime;
