@@ -1,17 +1,20 @@
 openapi: 3.0.3
 info:
   title: Clinic Patient Management API
-  description: API for managing users, authentication, doctors, and appointments.
+  description: API for managing users, authentication, doctors, medication, appointments, allergies, notifications, and reports.
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8080/api
+  - url: https://ehrbackend-production.a3a0.up.app/
 
 paths:
-  /users/auth/register:
+  # --------------------------------------------------------------------
+  # Auth
+  # --------------------------------------------------------------------
+  /auth/register:
     post:
-      summary: Register a new user
-      tags: [Users]
+      summary: Register a new user (patient or doctor)
+      tags: [Auth]
       requestBody:
         required: true
         content:
@@ -20,68 +23,24 @@ paths:
               $ref: '#/components/schemas/UserRequestDTO'
       responses:
         '200':
-          description: User registered successfully
+          description: Registration successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/AuthResponse'
+                  - $ref: '#/components/schemas/UserResponseDTO'
+        '500':
+          description: Internal error during registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /users/{id}:
-    get:
-      summary: Get user by ID
-      tags: [Users]
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: User details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponseDTO'
-    put:
-      summary: Update user by ID
-      tags: [Users]
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRequestDTO'
-      responses:
-        '200':
-          description: Updated user details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponseDTO'
-    delete:
-      summary: Delete user by ID
-      tags: [Users]
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '204':
-          description: User deleted successfully
-
-  /users/auth/login:
+  /auth/login:
     post:
       summary: Login user
-      tags: [Users]
+      tags: [Auth]
       requestBody:
         required: true
         content:
@@ -95,10 +54,313 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthLoginResponse'
+        '500':
+          description: Internal error during login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  # --------------------------------------------------------------------
+  # Users
+  # --------------------------------------------------------------------
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: EHR ID of the user
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: EHR ID of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: Updated user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '400':
+          description: Update failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: EHR ID of the user
+      responses:
+        '200':
+          description: User deleted successfully
+        '400':
+          description: Delete failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{id}/BloodGroup:
+    patch:
+      summary: Update user's blood group
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: EHR ID of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: Updated user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '400':
+          description: Update failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/search-patients:
+    get:
+      summary: Search patients
+      tags: [Users]
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: true
+          description: Search query string
+      responses:
+        '200':
+          description: List of matching patients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponseDTO'
+
+  # --------------------------------------------------------------------
+  # Doctors
+  # --------------------------------------------------------------------
+  /doctors/all:
+    get:
+      summary: Get all doctors
+      tags: [Doctors]
+      responses:
+        '200':
+          description: List of all doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Doctor'
+
+  /doctors/{id}/profile:
+    get:
+      summary: Get doctor profile by ID
+      tags: [Doctors]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Doctor ID
+      responses:
+        '200':
+          description: Doctor profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoctorResponse'
+        '404':
+          description: Doctor not found
+
+    put:
+      summary: Update doctor profile
+      tags: [Doctors]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Doctor ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: Doctor updated successfully
+        '400':
+          description: Update failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /doctors/{id}/password:
+    patch:
+      summary: Update doctor's password
+      tags: [Doctors]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Doctor ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: Password updated successfully
+        '400':
+          description: Update failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /doctors/{id}/degrees:
+    put:
+      summary: Update doctor's degrees
+      tags: [Doctors]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Doctor ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: Updated doctor entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Doctor'
+        '400':
+          description: Update failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /doctors/{id}:
+    delete:
+      summary: Delete doctor by ID
+      tags: [Doctors]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Doctor ID
+      responses:
+        '204':
+          description: Doctor deleted successfully
+        '400':
+          description: No doctor registered with this ehrId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /doctors/search:
+    get:
+      summary: Search doctors
+      tags: [Doctors]
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: true
+          description: Search query string
+      responses:
+        '200':
+          description: List of matching doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Doctor'
+
+  # --------------------------------------------------------------------
+  # Appointments
+  # --------------------------------------------------------------------
   /appointments:
     post:
-      summary: Create appointment
+      summary: Create a new appointment
       tags: [Appointments]
       requestBody:
         required: true
@@ -113,119 +375,1516 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppointmentResponseDTO'
+        '400':
+          description: Invalid request
+
+  /appointments/all/{user_id}:
+    get:
+      summary: Get all appointments for a patient
+      tags: [Appointments]
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 5
+          description: Page size
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+          description: Page number (0-indexed)
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: appointmentTime
+          description: Field to sort by
+      responses:
+        '200':
+          description: Paginated list of appointments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AppointmentResponseDTO'
+                  pageable:
+                    type: object
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  last:
+                    type: boolean
+                  size:
+                    type: integer
+                  number:
+                    type: integer
+                  sort:
+                    type: object
+                  first:
+                    type: boolean
+                  numberOfElements:
+                    type: integer
+                  empty:
+                    type: boolean
+        '404':
+          description: Patient not found
+
+  /appointments/{id}/reschedule:
+    put:
+      summary: Reschedule an appointment
+      tags: [Appointments]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Appointment token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentRequestDTO'
+      responses:
+        '200':
+          description: Appointment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentResponseDTO'
+        '404':
+          description: Appointment not found
+
+  /appointments/{id}/cancel:
+    patch:
+      summary: Cancel an appointment
+      tags: [Appointments]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Appointment token
+      responses:
+        '200':
+          description: Appointment cancelled successfully
+        '404':
+          description: Appointment not found
+
+  /appointments/{id}:
+    delete:
+      summary: Delete an appointment permanently
+      tags: [Appointments]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Appointment token
+      responses:
+        '200':
+          description: Appointment deleted successfully
+        '404':
+          description: Appointment not found
+
+  # --------------------------------------------------------------------
+  # Patient Allergies
+  # --------------------------------------------------------------------
+  /patients/{patientId}/allergies:
+    post:
+      summary: Create a new allergy for a patient
+      tags: [Patient Allergies]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllergyRequestDTO'
+      responses:
+        '201':
+          description: Allergy created successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Patient not found
+
+    put:
+      summary: Update an existing allergy for a patient
+      tags: [Patient Allergies]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllergyRequestDTO'
+      responses:
+        '202':
+          description: Allergy updated successfully
+        '400':
+          description: Invalid input or allergy not found
+        '404':
+          description: Patient not found
+
+    get:
+      summary: Get all allergies for a patient
+      tags: [Patient Allergies]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      responses:
+        '200':
+          description: List of patient allergies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllergyResponseDTO'
+        '404':
+          description: Patient not found
+
+  /patients/{patientId}/allergies/{allergyId}:
+    delete:
+      summary: Delete a specific allergy for a patient
+      tags: [Patient Allergies]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: path
+          name: allergyId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Allergy ID
+      responses:
+        '204':
+          description: Allergy deleted successfully
+        '404':
+          description: Patient or allergy not found
+
+  # --------------------------------------------------------------------
+  # Medication
+  # --------------------------------------------------------------------
+  /patients/{patient_id}/medical-records:
+    get:
+      summary: Get all medicine records for a patient
+      tags: [Medication]
+      parameters:
+        - in: path
+          name: patient_id
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: query
+          name: page_no
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 5
+        - in: query
+          name: property
+          schema:
+            type: string
+            default: prescribedOn
+          description: Sort property
+      responses:
+        '200':
+          description: Paginated list of medicine records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MedicineResponse'
+                  pageable:
+                    type: object
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  last:
+                    type: boolean
+                  size:
+                    type: integer
+                  number:
+                    type: integer
+                  sort:
+                    type: object
+                  first:
+                    type: boolean
+                  numberOfElements:
+                    type: integer
+                  empty:
+                    type: boolean
+
+  /patients/medical-records/{recordId}:
+    get:
+      summary: Get a specific medicine record by ID
+      tags: [Medication]
+      parameters:
+        - in: path
+          name: recordId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          description: Medicine entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Medicine'
+        '404':
+          description: Record not found
+
+  /patients/{patientId}/medications:
+    get:
+      summary: Get active medications for a patient
+      tags: [Medication]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: query
+          name: page_no
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 5
+        - in: query
+          name: property
+          schema:
+            type: string
+            default: prescribedOn
+      responses:
+        '200':
+          description: Paginated list of active medications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MedicineResponse'
+                  pageable:
+                    type: object
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  last:
+                    type: boolean
+                  size:
+                    type: integer
+                  number:
+                    type: integer
+                  sort:
+                    type: object
+                  first:
+                    type: boolean
+                  numberOfElements:
+                    type: integer
+                  empty:
+                    type: boolean
+
+  /patients/{patientId}/medication/history:
+    get:
+      summary: Get inactive medication history for a patient
+      tags: [Medication]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: query
+          name: page_no
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 5
+        - in: query
+          name: property
+          schema:
+            type: string
+            default: prescribedOn
+      responses:
+        '200':
+          description: Paginated list of inactive medications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MedicineResponse'
+                  pageable:
+                    type: object
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  last:
+                    type: boolean
+                  size:
+                    type: integer
+                  number:
+                    type: integer
+                  sort:
+                    type: object
+                  first:
+                    type: boolean
+                  numberOfElements:
+                    type: integer
+                  empty:
+                    type: boolean
+
+  /patients/medications:
+    post:
+      summary: Add a new medication record
+      tags: [Medication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicineRequest'
+      responses:
+        '200':
+          description: Medication added successfully
+        '400':
+          description: Invalid input
+
+  /patients/{patientId}/diet-instructions:
+    get:
+      summary: Get diet instructions for a patient
+      tags: [Medication]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      responses:
+        '200':
+          description: List of diet instructions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DietInstruction'
+        '404':
+          description: Patient not found
+
+  /patients/{medication_id}/medications:
+    put:
+      summary: Update an existing medication record
+      tags: [Medication]
+      parameters:
+        - in: path
+          name: medication_id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Medication ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicineRequest'
+      responses:
+        '200':
+          description: Medication updated successfully
+        '404':
+          description: Medication not found
+
+  # --------------------------------------------------------------------
+  # Diet Instructions
+  # --------------------------------------------------------------------
+  /patient/{patient_id}/diet_instruction:
+    post:
+      summary: Add a diet instruction for a patient
+      tags: [Diet Instructions]
+      parameters:
+        - in: path
+          name: patient_id
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DietInstructionRequest'
+      responses:
+        '200':
+          description: Diet instruction created
+        '400':
+          description: Invalid input
+
+    get:
+      summary: Get a diet instruction by ID
+      tags: [Diet Instructions]
+      parameters:
+        - in: path
+          name: patient_id
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: query
+          name: dietId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Diet instruction ID
+      responses:
+        '200':
+          description: Diet instruction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DietInstruction'
+        '404':
+          description: Diet instruction not found
+
+    delete:
+      summary: Delete a diet instruction
+      tags: [Diet Instructions]
+      parameters:
+        - in: path
+          name: patient_id
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: query
+          name: dietId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Diet instruction ID
+      responses:
+        '200':
+          description: Diet instruction deleted
+        '404':
+          description: Diet instruction not found
+
+  /patient/{patient_id}/{dietId}/diet_instruction:
+    put:
+      summary: Update a diet instruction
+      tags: [Diet Instructions]
+      parameters:
+        - in: path
+          name: patient_id
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+        - in: path
+          name: dietId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Diet instruction ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DietInstructionRequest'
+      responses:
+        '200':
+          description: Diet instruction updated
+        '404':
+          description: Diet instruction not found
+
+  # --------------------------------------------------------------------
+  # Notifications
+  # --------------------------------------------------------------------
+  /notifications/patient/{patientId}:
+    get:
+      summary: Get notifications for a patient
+      tags: [Notifications]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '404':
+          description: Patient not found
+
+  /notifications/{id}/read:
+    put:
+      summary: Mark a notification as read
+      tags: [Notifications]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Notification ID
+      responses:
+        '200':
+          description: Notification marked as read
+        '404':
+          description: Notification not found
+
+  # --------------------------------------------------------------------
+  # Reports
+  # --------------------------------------------------------------------
+  /reports:
+    post:
+      summary: Add a new report
+      tags: [Reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRequestDto'
+      responses:
+        '200':
+          description: Report created
+        '400':
+          description: Invalid input
+
+  /reports/patient/{patientId}:
+    get:
+      summary: Get all reports for a patient
+      tags: [Reports]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      responses:
+        '200':
+          description: List of report summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportResponseDto'
+        '404':
+          description: Patient not found
+
+  /reports/{id}/download:
+    get:
+      summary: Download a report file
+      tags: [Reports]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Report ID
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: Report has no file data
+        '404':
+          description: Report not found
+
+  # --------------------------------------------------------------------
+  # Report Access
+  # --------------------------------------------------------------------
+  /reports/access/request:
+    post:
+      summary: Request access to patient reports
+      tags: [Report Access]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportAccessRequestDto'
+      responses:
+        '200':
+          description: Access request created
+
+  /reports/access/approve/{requestId}:
+    put:
+      summary: Approve report access request
+      tags: [Report Access]
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          description: Access approved
+
+  /reports/access/reject/{requestId}:
+    put:
+      summary: Reject report access request
+      tags: [Report Access]
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          description: Access rejected
+
+  /reports/access/patient/{patientId}:
+    get:
+      summary: Get access requests for a patient
+      tags: [Report Access]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      responses:
+        '200':
+          description: List of access requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportAccessRequestResponseDto'
+
+  /reports/access/doctor/{doctorId}:
+    get:
+      summary: Get access requests for a doctor
+      tags: [Report Access]
+      parameters:
+        - in: path
+          name: doctorId
+          schema:
+            type: string
+          required: true
+          description: Doctor ID (ehrId)
+      responses:
+        '200':
+          description: List of access requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportAccessRequestResponseDto'
+
+  # --------------------------------------------------------------------
+  # Restrictions
+  # --------------------------------------------------------------------
+  /restrictions/request:
+    post:
+      summary: Request restriction grant
+      tags: [Restrictions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestrictionRequestDto'
+      responses:
+        '200':
+          description: Restriction request created
+
+  /restrictions/approve/{requestId}:
+    put:
+      summary: Approve restriction grant
+      tags: [Restrictions]
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: Restriction approved
+
+  /restrictions/reject/{requestId}:
+    put:
+      summary: Reject restriction grant
+      tags: [Restrictions]
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          description: Restriction rejected
+
+  /restrictions/patient/{patientId}:
+    get:
+      summary: Get restrictions for a patient
+      tags: [Restrictions]
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient ID (ehrId)
+      responses:
+        '200':
+          description: List of restrictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestrictionGrantResponseDto'
 
 components:
   schemas:
+    # -----------------------------------------------------------------
+    # Users
+    # -----------------------------------------------------------------
     UserRequestDTO:
       type: object
       properties:
         address:
           $ref: '#/components/schemas/Address'
-        firstName: { type: string }
-        lastName: { type: string }
-        email: { type: string }
-        dob: { type: string, format: date }
-        password: { type: string }
-        role: { $ref: '#/components/schemas/Role' }
-        phoneNo: { type: integer }
-        bloodGroup: { $ref: '#/components/schemas/BloodGroup' }
-        gender: { $ref: '#/components/schemas/Gender' }
-        relation_name: { type: string }
-        relation_no: { type: integer }
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        dob:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 07-09-1990
+        password:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        phoneNo:
+          type: integer
+          format: int64
+        bloodGroup:
+          $ref: '#/components/schemas/BloodGroup'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        emergencyContact:
+          $ref: '#/components/schemas/Emergency'
+        doctorProfile:
+          $ref: '#/components/schemas/DoctorProfile'
+        maritalStatus:
+          type: string
 
     UserResponseDTO:
       type: object
       properties:
-        email: { type: string }
-        id: { type: integer }
-        firstName: { type: string }
-        lastName: { type: string }
-        role: { $ref: '#/components/schemas/Role' }
-        relation_name: { type: string }
-        relation_no: { type: integer }
-
-    AuthResponse:
-      type: object
-      properties:
-        userResponseDTO: { $ref: '#/components/schemas/UserResponseDTO' }
-        tokenResponse: { $ref: '#/components/schemas/TokenResponse' }
-
-    AuthLoginResponse:
-      type: object
-      properties:
-        loginResponse: { $ref: '#/components/schemas/LoginResponse' }
-        tokenResponse: { $ref: '#/components/schemas/TokenResponse' }
-
-    LoginRequest:
-      type: object
-      properties:
-        email: { type: string }
-        password: { type: string }
-
-    LoginResponse:
-      type: object
-      properties:
-        status: { type: boolean }
-        message: { type: string }
-        userResponseDTO: { $ref: '#/components/schemas/UserResponseDTO' }
-
-    TokenResponse:
-      type: object
-      properties:
-        generateAccessToken: { type: string }
-        generateRefreshToken: { type: string }
-
-    AppointmentRequestDTO:
-      type: object
-      properties:
-        patientId: { type: integer }
-        doctorId: { type: integer }
-        appointmentTime: { type: string, format: date-time }
-        duration: { type: integer }
-        reason: { type: string }
-        status: { $ref: '#/components/schemas/AppointmentStatus' }
-
-    AppointmentResponseDTO:
-      type: object
-      properties:
-        id: { type: integer }
-        patientId: { type: integer }
-        patientName: { type: string }
-        doctorId: { type: integer }
-        doctorName: { type: string }
-        appointmentTime: { type: string, format: date-time }
-        duration: { type: integer }
-        reason: { type: string }
-        status: { $ref: '#/components/schemas/AppointmentStatus' }
+        email:
+          type: string
+        ehrId:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNo:
+          type: integer
+          format: int64
+        dob:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 07-09-1990
+        gender:
+          $ref: '#/components/schemas/Gender'
+        role:
+          $ref: '#/components/schemas/Role'
+        bloodGroup:
+          $ref: '#/components/schemas/BloodGroup'
+        address:
+          $ref: '#/components/schemas/Address'
+        doctorProfile:
+          $ref: '#/components/schemas/DoctorProfile'
+        maritalStatus:
+          type: string
+        emergencyContact:
+          $ref: '#/components/schemas/Emergency'
 
     Address:
       type: object
       properties:
-        addressLine: { type: string }
-        pin_code: { type: integer }
-        city: { type: string }
-        state: { type: string }
+        addressLine:
+          type: string
+        state:
+          type: string
+        city:
+          type: string
+        pin_code:
+          type: integer
+          format: int64
+          description: Postal code (length 6)
 
-    DoctorResponseDTO:
+    Emergency:
       type: object
       properties:
-        name: { type: string }
-        specialization: { type: string }
-        phone: { type: string }
+        contactName:
+          type: string
+        contactPhoneNo:
+          type: integer
+          format: int64
+          description: Contact phone number (length 10)
+        relationship:
+          type: string
 
+    User:
+      type: object
+      properties:
+        ehrId:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        dob:
+          type: string
+          description: Date in mm-dd-yyyy format
+        maritalStatus:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        phoneNo:
+          type: integer
+          format: int64
+        gender:
+          $ref: '#/components/schemas/Gender'
+        address:
+          $ref: '#/components/schemas/Address'
+        emergencyContact:
+          $ref: '#/components/schemas/Emergency'
+        bloodGroup:
+          $ref: '#/components/schemas/BloodGroup'
+
+    # -----------------------------------------------------------------
+    # Auth
+    # -----------------------------------------------------------------
+    AuthResponse:
+      type: object
+      properties:
+        userResponseDTO:
+          $ref: '#/components/schemas/UserResponseDTO'
+        tokenResponse:
+          $ref: '#/components/schemas/TokenResponse'
+
+    AuthLoginResponse:
+      type: object
+      properties:
+        loginResponse:
+          $ref: '#/components/schemas/LoginResponse'
+        tokenResponse:
+          $ref: '#/components/schemas/TokenResponse'
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+        message:
+          type: string
+        userResponseDTO:
+          $ref: '#/components/schemas/UserResponseDTO'
+
+    TokenResponse:
+      type: object
+      properties:
+        generateAccessToken:
+          type: string
+        generateRefreshToken:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: integer
+
+    # -----------------------------------------------------------------
+    # Doctors
+    # -----------------------------------------------------------------
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        doctorProfile:
+          $ref: '#/components/schemas/DoctorProfile'
+
+    DoctorProfile:
+      type: object
+      properties:
+        aadhaarNumber:
+          type: string
+        panNumber:
+          type: string
+        specialization:
+          type: string
+        licenseNumber:
+          type: string
+        aboutDoctor:
+          type: string
+        degrees:
+          type: array
+          items:
+            type: string
+
+    DoctorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        doctorProfile:
+          $ref: '#/components/schemas/DoctorProfile'
+        medicine:
+          $ref: '#/components/schemas/Medicine'
+
+    # -----------------------------------------------------------------
+    # Appointments
+    # -----------------------------------------------------------------
+    AppointmentRequestDTO:
+      type: object
+      properties:
+        patientId:
+          type: string
+        doctorId:
+          type: string
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+        date:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 07-20-2026
+        startTime:
+          type: string
+          description: Time in HH:mm:ss format
+          example: "14:30:00"
+        lastTime:
+          type: string
+          description: Time in HH:mm:ss format
+          example: "15:00:00"
+        charge:
+          type: integer
+          format: int64
+        total_seat:
+          type: integer
+          format: int64
+        available_seat:
+          type: integer
+          format: int64
+
+    AppointmentResponseDTO:
+      type: object
+      properties:
+        token:
+          type: integer
+          format: int64
+        patientId:
+          type: string
+        doctorId:
+          type: string
+        date:
+          type: string
+          example: 07-20-2026
+        startTime:
+          type: string
+          example: "14:30:00"
+        lastTime:
+          type: string
+          example: "15:00:00"
+        charge:
+          type: integer
+          format: int64
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+        total_seat:
+          type: integer
+          format: int64
+        available_seat:
+          type: integer
+          format: int64
+
+    # -----------------------------------------------------------------
+    # Patient Allergies
+    # -----------------------------------------------------------------
+    AllergyRequestDTO:
+      type: object
+      properties:
+        category:
+          type: string
+        items:
+          type: string
+        allergyType:
+          $ref: '#/components/schemas/AllergyType'
+        severity:
+          $ref: '#/components/schemas/Severity'
+        description:
+          type: string
+
+    AllergyResponseDTO:
+      type: object
+      properties:
+        allergyid:
+          type: integer
+          format: int64
+        category:
+          type: string
+        items:
+          type: string
+        allergyType:
+          $ref: '#/components/schemas/AllergyType'
+        severity:
+          $ref: '#/components/schemas/Severity'
+        description:
+          type: string
+
+    # -----------------------------------------------------------------
+    # Medication
+    # -----------------------------------------------------------------
+    Medicine:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        prescribedBy:
+          $ref: '#/components/schemas/Doctor'
+        prescribedOn:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 07-17-2026
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicineDetails'
+        patient:
+          $ref: '#/components/schemas/User'
+        diet:
+          $ref: '#/components/schemas/DietInstruction'
+
+    MedicineDetails:
+      type: object
+      properties:
+        dosageMg:
+          type: number
+          format: double
+        isActive:
+          type: boolean
+        expire:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 01-01-2027
+        tenure:
+          type: integer
+        medicineName:
+          type: string
+        notes:
+          type: string
+        shift:
+          $ref: '#/components/schemas/Shift'
+
+    MedicineRequest:
+      type: object
+      properties:
+        prescribedBy:
+          type: string
+          description: Doctor ID (ehrId)
+        prescribedOn:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 07-17-2026
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicineDetails'
+        patient:
+          type: string
+          description: Patient ID (ehrId)
+        diet:
+          $ref: '#/components/schemas/MedicationDietRequest'
+
+    MedicineResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        prescribedBy:
+          type: string
+          description: Doctor ID (ehrId)
+        prescribedOn:
+          type: string
+          description: Date in mm-dd-yyyy format
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicineDetails'
+        patient:
+          type: string
+          description: Patient ID (ehrId)
+        diet:
+          $ref: '#/components/schemas/DietInstruction'
+
+    MedicationDietRequest:
+      type: object
+      properties:
+        name_of_diet:
+          type: string
+        food_description:
+          type: string
+
+    # -----------------------------------------------------------------
+    # Diet Instructions
+    # -----------------------------------------------------------------
+    DietInstruction:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name_of_diet:
+          type: string
+        food_description:
+          type: string
+        prescribeBy:
+          $ref: '#/components/schemas/Doctor'
+        patientId:
+          $ref: '#/components/schemas/User'
+
+    DietInstructionRequest:
+      type: object
+      properties:
+        name_of_diet:
+          type: string
+        food_description:
+          type: string
+        prescribeBy:
+          type: string
+          description: Doctor ID (ehrId)
+
+    # -----------------------------------------------------------------
+    # Notifications
+    # -----------------------------------------------------------------
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user:
+          $ref: '#/components/schemas/User'
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-07-17T10:30:00"
+        readStatus:
+          type: boolean
+
+    # -----------------------------------------------------------------
+    # Reports
+    # -----------------------------------------------------------------
+    ReportRequestDto:
+      type: object
+      properties:
+        patientIds:
+          type: array
+          items:
+            type: string
+        doctorId:
+          type: string
+        dateTime:
+          type: string
+          description: Date in mm-dd-yyyy format
+          example: 07-17-2026
+        info:
+          type: string
+        desc:
+          type: string
+        conclusion:
+          type: string
+        fileBase64:
+          type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+
+    ReportResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        patientId:
+          type: string
+        patientName:
+          type: string
+        doctorId:
+          type: string
+        doctorName:
+          type: string
+        dateTime:
+          type: string
+          description: Date in mm-dd-yyyy format
+        info:
+          type: string
+        desc:
+          type: string
+        conclusion:
+          type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+
+    # -----------------------------------------------------------------
+    # Report Access
+    # -----------------------------------------------------------------
+    ReportAccessRequestDto:
+      type: object
+      properties:
+        doctorId:
+          type: string
+        patientId:
+          type: string
+
+    ReportAccessRequestResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        patientId:
+          type: string
+        patientName:
+          type: string
+        doctorId:
+          type: string
+        doctorName:
+          type: string
+        status:
+          $ref: '#/components/schemas/ReportAccessStatus'
+        requestedAt:
+          type: string
+          format: date-time
+        respondedAt:
+          type: string
+          format: date-time
+
+    # -----------------------------------------------------------------
+    # Restrictions
+    # -----------------------------------------------------------------
+    RestrictionRequestDto:
+      type: object
+      properties:
+        patientId:
+          type: string
+        accessorId:
+          type: string
+        restrictedAttributes:
+          type: array
+          items:
+            type: string
+
+    RestrictionGrantResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        patientId:
+          type: string
+        patientName:
+          type: string
+        accessorId:
+          type: string
+        accessorName:
+          type: string
+        status:
+          $ref: '#/components/schemas/RestrictionGrantStatus'
+        restrictedAttributes:
+          type: array
+          items:
+            type: string
+        requestedAt:
+          type: string
+          format: date-time
+        respondedAt:
+          type: string
+          format: date-time
+
+    # -----------------------------------------------------------------
+    # Enums
+    # -----------------------------------------------------------------
     Role:
       type: string
-      enum: [PATIENT, DOCTOR, HOSPITAL_STAFF, ADMIN]
+      enum: [PATIENT, DOCTOR, ADMIN]
 
     Gender:
       type: string
-      enum: [Male, Female, Non_binary, Prefer_not_to_say]
+      enum: [MALE, FEMALE, Non_binary, Prefer_not_to_say]
 
     BloodGroup:
       type: string
-      enum: [Ap, An, Bp, Bn, ABp, ABn, Op, On]
+      enum: [A_POSITIVE, A_NEGATIVE, B_POSITIVE, B_NEGATIVE, AB_POSITIVE, AB_NEGATIVE, O_POSITIVE, O_NEGATIVE]
 
     AppointmentStatus:
-#      0BkSFYvi
       type: string
-      enum: [SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED]
+      enum: [SCHEDULED, CANCELLED, COMPLETED, ON_HOLD]
+
+    Shift:
+      type: string
+      enum: [MORNING_BeforeFood, MORNING_AfterFood, EVENING_BeforeFood, EVENING_AfterFood, NIGHT_BeforeFood, NIGHT_AfterFood]
+
+    AllergyType:
+      type: string
+      enum: [DRUG, FOOD, ENVIRONMENTAL, INSECT, LATEX, OTHER]
+
+    Severity:
+      type: string
+      enum: [MILD, MODERATE, SEVERE, LIFE_THREATENING]
+
+    ReportAccessStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
+
+    RestrictionGrantStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]

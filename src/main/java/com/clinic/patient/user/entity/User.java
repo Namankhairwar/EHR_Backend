@@ -1,10 +1,10 @@
 package com.clinic.patient.user.entity;
 
 import com.clinic.patient.applicationCommonFeature.ehrConversion.EhrConversion;
+import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.clinic.patient.patient.entity.Allergy;
 import com.clinic.patient.user.state.BloodGroup;
 import com.clinic.patient.user.state.Gender;
-import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +13,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

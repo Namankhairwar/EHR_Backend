@@ -1,16 +1,18 @@
 package com.clinic.patient.doctor.service;
 
 
-import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.doctor.entity.Doctor;
+import com.clinic.patient.doctor.repositories.DoctorRepository;
 import com.clinic.patient.user.dto.UserRequestDTO;
 import com.clinic.patient.user.dto.UserResponseDTO;
-import com.clinic.patient.doctor.repositories.DoctorRepository;
+import com.clinic.patient.user.entity.User;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
-import com.clinic.patient.user.entity.User;
+
 /**
  * @author Krishana dubey
  *

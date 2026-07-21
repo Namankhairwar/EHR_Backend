@@ -1,21 +1,25 @@
 package com.clinic.patient.applicationCommonFeature.authentication.controller;
 
 import com.clinic.patient.applicationCommonFeature.authentication.dto.auth.AuthResponse;
-import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginRequest;
 import com.clinic.patient.applicationCommonFeature.authentication.dto.jwt.TokenResponse;
+import com.clinic.patient.applicationCommonFeature.authentication.dto.login.LoginRequest;
 import com.clinic.patient.applicationCommonFeature.exception.GlobalExceptionHandler;
 import com.clinic.patient.applicationCommonFeature.state.Role;
-import com.clinic.patient.security.jwt.JwtService;
 import com.clinic.patient.doctor.service.DoctorService;
+import com.clinic.patient.security.jwt.JwtService;
 import com.clinic.patient.user.dto.UserRequestDTO;
 import com.clinic.patient.user.dto.UserResponseDTO;
 import com.clinic.patient.user.service.UserService;
 import com.sun.jdi.InternalException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 import java.util.Map;
 

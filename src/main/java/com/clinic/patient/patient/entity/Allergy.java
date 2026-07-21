@@ -4,9 +4,9 @@ import com.clinic.patient.patient.state.AllergyType;
 import com.clinic.patient.patient.state.Severity;
 import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "patient_allergies")

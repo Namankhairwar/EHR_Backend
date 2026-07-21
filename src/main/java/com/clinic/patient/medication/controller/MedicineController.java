@@ -1,6 +1,5 @@
 package com.clinic.patient.medication.controller;
 
-import com.clinic.patient.applicationCommonFeature.mapping.MAP;
 import com.clinic.patient.medication.dto.MedicineRequest;
 import com.clinic.patient.medication.dto.MedicineResponse;
 import com.clinic.patient.medication.entity.Medicine;

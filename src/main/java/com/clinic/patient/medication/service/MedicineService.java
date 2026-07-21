@@ -1,6 +1,8 @@
 package com.clinic.patient.medication.service;
 
 import com.clinic.patient.applicationCommonFeature.mapping.MAP;
+import com.clinic.patient.doctor.entity.Doctor;
+import com.clinic.patient.doctor.repositories.DoctorRepository;
 import com.clinic.patient.medication.dto.DietInstructionResponse;
 import com.clinic.patient.medication.dto.MedicineRequest;
 import com.clinic.patient.medication.dto.MedicineResponse;
@@ -10,14 +12,8 @@ import com.clinic.patient.medication.repositories.DietInstructionRepository;
 import com.clinic.patient.medication.repositories.MedicineRepository;
 import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.UserRepository;
-import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.doctor.repositories.DoctorRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

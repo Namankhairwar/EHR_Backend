@@ -1,10 +1,12 @@
 package com.clinic.patient.doctor.entity;
 
 import com.clinic.patient.applicationCommonFeature.mapping.db.StringConvert;
+import com.clinic.patient.appointment.entity.AppointmentTimeDoctor;
 import com.clinic.patient.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -58,4 +60,6 @@ public class Doctor {
     @Embedded
     private DoctorProfile doctorProfile;
 
+    @OneToMany(mappedBy = "doctor")
+    private List<AppointmentTimeDoctor> appointmentTimeDoctor;
 }

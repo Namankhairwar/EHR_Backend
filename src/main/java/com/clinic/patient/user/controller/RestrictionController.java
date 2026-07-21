@@ -1,7 +1,7 @@
 package com.clinic.patient.user.controller;
 
-import com.clinic.patient.user.dto.RestrictionRequestDto;
 import com.clinic.patient.user.dto.RestrictionGrantResponseDto;
+import com.clinic.patient.user.dto.RestrictionRequestDto;
 import com.clinic.patient.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

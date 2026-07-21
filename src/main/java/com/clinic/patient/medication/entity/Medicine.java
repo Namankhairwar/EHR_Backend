@@ -2,7 +2,6 @@ package com.clinic.patient.medication.entity;
 
 import com.clinic.patient.applicationCommonFeature.mapping.db.MedicineDetailsConvert;
 import com.clinic.patient.doctor.entity.Doctor;
-import com.clinic.patient.medication.repositories.DietInstructionRepository;
 import com.clinic.patient.medication.state.Shift;
 import com.clinic.patient.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
