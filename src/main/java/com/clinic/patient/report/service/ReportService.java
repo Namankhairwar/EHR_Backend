@@ -5,6 +5,7 @@ import com.clinic.patient.applicationCommonFeature.state.Role;
 import com.clinic.patient.doctor.entity.Doctor;
 import com.clinic.patient.doctor.service.DoctorService;
 import com.clinic.patient.notification.service.NotificationService;
+import com.clinic.patient.realtime.RealtimePushService;
 import com.clinic.patient.report.dto.ReportAccessRequestDto;
 import com.clinic.patient.report.dto.ReportAccessRequestResponseDto;
 import com.clinic.patient.report.dto.ReportRequestDto;
@@ -41,6 +42,7 @@ public class ReportService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final ReportAccessRequestRepository reportAccessRequestRepository;
+    private final RealtimePushService realtimePushService;
 
     @Transactional
     public void addReport(ReportRequestDto request) {
@@ -80,7 +82,18 @@ public class ReportService {
             // Trigger notification
             String message = "Dr. " + doctorName + " has added a new medical report for you: " + request.getInfo();
             notificationService.createNotification(patient, message);
+            realtimePushService.sendToUser(patient.getEmail(),
+                    RealtimePushService.QUEUE_REPORTS, toDto(report));
         }
+    }
+
+    private ReportResponseDto toDto(Report r) {
+        ReportResponseDto dto = MAP.map(r, ReportResponseDto::new);
+        dto.setPatientId(r.getPatient().getEhrId());
+        dto.setPatientName(r.getPatient().getFirstName() + " " + r.getPatient().getLastName());
+        dto.setDoctorId(r.getDoctor().getId());
+        dto.setDoctorName(r.getDoctor().getUser().getFirstName() + " " + r.getDoctor().getUser().getLastName());
+        return dto;
     }
 
     /**
