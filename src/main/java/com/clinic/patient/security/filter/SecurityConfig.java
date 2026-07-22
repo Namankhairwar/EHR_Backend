@@ -39,6 +39,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        // WebSocket handshake carries no Authorization header;
+                        // the JWT is validated on the STOMP CONNECT frame instead.
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated())
              .build();
     }
