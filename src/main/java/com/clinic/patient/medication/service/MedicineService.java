@@ -10,6 +10,7 @@ import com.clinic.patient.medication.entity.DietInstruction;
 import com.clinic.patient.medication.entity.Medicine;
 import com.clinic.patient.medication.repositories.DietInstructionRepository;
 import com.clinic.patient.medication.repositories.MedicineRepository;
+import com.clinic.patient.realtime.RealtimePushService;
 import com.clinic.patient.user.entity.User;
 import com.clinic.patient.user.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class MedicineService {
     private final DietInstructionRepository dietInstructionRepository;
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final RealtimePushService realtimePushService;
 
     // getting the medicine page
     public Page<MedicineResponse> getAllMedicineByPatientId(String id,int number , int size,String property){
@@ -110,6 +112,14 @@ public class MedicineService {
        }
        
        medicineRepository.save(medicine);
+       pushToPatient(medicine);
+   }
+
+   private void pushToPatient(Medicine medicine) {
+       if (medicine.getPatient() != null) {
+           realtimePushService.sendToUser(medicine.getPatient().getEmail(),
+                   RealtimePushService.QUEUE_MEDICATIONS, MAP.map(medicine, MedicineResponse::new));
+       }
    }
 
    public DietInstructionResponse getDietByPatient(String id){
@@ -126,6 +136,7 @@ public class MedicineService {
        Medicine medicine=medicinesByMedicineId.orElseThrow();
         MAP.copyInTheObject(request,medicine);
         medicineRepository.save(medicine);
+        pushToPatient(medicine);
    }
 
 }
