@@ -392,8 +392,6 @@ public class UserService {
         user.setEmailVerified(false);
 
         log.info(user.toString());
-        User user = MAP.map(dto, User::new);
-        User saved = userRepository.save(user);
 
         // Save user
         User savedUser = userRepository.save(user);
