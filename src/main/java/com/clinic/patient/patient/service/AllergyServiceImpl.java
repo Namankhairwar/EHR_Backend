@@ -21,7 +21,7 @@ public class AllergyServiceImpl implements AllergyService {
     @Override
     @Transactional
     public AllergyResponseDTO createAllergy(
-            Long patientId,
+            String patientId,
             AllergyRequestDTO dto
     ) {
 
@@ -46,14 +46,14 @@ public class AllergyServiceImpl implements AllergyService {
     }
 
     @Override
-    public boolean check(long patientId , AllergyRequestDTO dto){
+    public boolean check(String patientId , AllergyRequestDTO dto){
       return  allergyRepository
                 .existsByPatient_EhrIdAndAllergyType(patientId , dto.getAllergyType());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AllergyResponseDTO> getPatientAllergies(Long patientId) {
+    public List<AllergyResponseDTO> getPatientAllergies(String patientId) {
 
         return allergyRepository.findAllByPatient_EhrId(patientId)
                 .stream()
@@ -64,7 +64,7 @@ public class AllergyServiceImpl implements AllergyService {
     @Override
     @Transactional
     public void deleteAllergy(
-            Long patientId,
+            String patientId,
             Long allergyId
     ) {
 

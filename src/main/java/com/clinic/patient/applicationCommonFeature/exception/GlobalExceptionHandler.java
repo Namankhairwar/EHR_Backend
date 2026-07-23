@@ -1,6 +1,5 @@
 package com.clinic.patient.applicationCommonFeature.exception;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +17,17 @@ public class GlobalExceptionHandler extends Exception {
     public GlobalExceptionHandler(String message){
         super(message);
 
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public static ResponseEntity<Map<String, Object>> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("status", HttpStatus.FORBIDDEN.value());
+        errorResponse.put("error", "Forbidden");
+        errorResponse.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     // Generic fallback for other exceptions
@@ -39,17 +49,17 @@ public class GlobalExceptionHandler extends Exception {
         errorResponse.put("error", "Not Found Incorrect Details");
         errorResponse.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     public static ResponseEntity<Map<String, Object>> incorrectUpdate(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("status", HttpStatus.NOT_FOUND.value());
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "this form of update is restricted");
         errorResponse.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
 }

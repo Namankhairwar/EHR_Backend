@@ -6,15 +6,13 @@ import lombok.Data;
 @Data
 public class AppointmentRequestDTO {
 
-    private Long patientId;
-    private Long doctorId;
+    private String patientId;
+    private String doctorId;
     private AppointmentStatus status;
     private String date;
     private String startTime;
     private String lastTime;
     private Long charge;
-    private Long total_seat;
-    private Long available_seat;
 
 
 }

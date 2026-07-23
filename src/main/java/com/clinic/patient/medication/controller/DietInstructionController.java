@@ -8,6 +8,7 @@ import com.clinic.patient.medication.repositories.DietInstructionRepository;
 import com.clinic.patient.user.entity.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -18,8 +19,9 @@ import java.util.Optional;
 public class DietInstructionController {
     private final DietInstructionRepository dietInstructionRepository;
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @PostMapping("patient/{patient_id}/diet_instruction")
-    public ResponseEntity<?> addDietInstruction(@PathVariable("patient_id") long patient_id
+    public ResponseEntity<?> addDietInstruction(@PathVariable("patient_id") String patient_id
             , @RequestBody DietInstructionRequest dietInstructionRequest){
         DietInstruction dietInstruction = MAP.map(dietInstructionRequest , DietInstruction::new);
         User user = new User();
@@ -44,8 +46,9 @@ public class DietInstructionController {
         return ResponseEntity.ok(d);
     }
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @PutMapping("patient/{patient_id}/{dietId}/diet_instruction")
-    public ResponseEntity<?> updateDietInstruction(@PathVariable("patient_id") long patient_id,
+    public ResponseEntity<?> updateDietInstruction(@PathVariable("patient_id") String patient_id,
             @PathVariable("dietId") long dietId
             , @RequestBody DietInstructionRequest dietInstructionRequest){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
@@ -55,8 +58,9 @@ public class DietInstructionController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
     @DeleteMapping("patient/{patient_id}/diet_instruction")
-    public ResponseEntity<?> deleteDietInstruction(@PathVariable("patient_id") long patient_id,
+    public ResponseEntity<?> deleteDietInstruction(@PathVariable("patient_id") String patient_id,
                                                    @RequestParam("dietId") long dietId){
         Optional<DietInstruction> dietInstruction =dietInstructionRepository.findById(dietId);
         DietInstruction diet = dietInstruction.orElseThrow(()-> new RuntimeException("This diet does not exist"));

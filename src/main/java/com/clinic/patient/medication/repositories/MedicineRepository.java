@@ -1,6 +1,5 @@
 package com.clinic.patient.medication.repositories;
 
-import com.clinic.patient.medication.entity.DietInstruction;
 import com.clinic.patient.medication.entity.Medicine;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,13 +12,13 @@ import java.util.Optional;
 @Repository
 public interface MedicineRepository extends JpaRepository<Medicine,Long> {
 
-    Page<Medicine> findAllByPatient_EhrId(Long patientId, Pageable pageable);
+    Page<Medicine> findAllByPatient_EhrId(String patientId, Pageable pageable);
 
     Optional<Medicine> getMedicinesById(long id);
 
-    Page<Medicine> findAllByPatient_EhrIdOrderByPrescribedOn(long id, Pageable pageable);
+    Page<Medicine> findAllByPatient_EhrIdOrderByPrescribedOn(String id, Pageable pageable);
 
-    java.util.List<Medicine> findAllByPatient_EhrId(Long patientId);
+    java.util.List<Medicine> findAllByPatient_EhrId(String patientId);
 
     @Transactional
   default  Optional<Medicine> saveMedicine(Medicine entity){

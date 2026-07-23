@@ -42,3 +42,6 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
+
+# local credentials doc (never commit real values)
+docs/credentials.md

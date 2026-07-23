@@ -1,18 +1,21 @@
 package com.clinic.patient.security.jwt;
 
+import com.clinic.patient.user.entity.User;
+import com.clinic.patient.user.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Krishana dubey
@@ -22,38 +25,49 @@ import java.util.ArrayList;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    @Autowired
-    public JwtAuthenticationFilter(JwtService jwtServic) {
-        this.jwtService = jwtServic;
+    private final UserRepository userRepository;
+
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getServletPath().startsWith("/api/auth/")
+                || request.getServletPath().startsWith("/ws");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        SecurityContextHolder.getContext().getAuthentication();
-        String path = request.getServletPath();
-        if(path.contains("auth")){
-            filterChain.doFilter(request,response);
-            return;
-        }
-        System.out.println("JWT is authenticating");
         String header = request.getHeader("Authorization");
-        if(header == null || !header.startsWith("Bearer ")){
+        if (header == null || !header.startsWith("Bearer ")) {
             log.warn("JWT not available");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Authentication required please login");
+            reject(response, "Authentication required please login");
             return;
         }
-        String token = header.substring(7);
-        System.out.println(jwtService.validateToken(token));
-        if(!jwtService.validateToken(token)){
-            log.warn("Invalid Token");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or Expired token");
+
+        String email = jwtService.extractEmail(header.substring(7), "Access");
+        if (email == null) {
+            reject(response, "Invalid or Expired token");
             return;
         }
-    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken= new   UsernamePasswordAuthenticationToken(request.getHeader("email"),null,new ArrayList<>());
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-        filterChain.doFilter(request,response);
+
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            reject(response, "Invalid or Expired token");
+            return;
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                email, null,
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.get().getRole().name()))));
+        filterChain.doFilter(request, response);
+    }
+
+    private void reject(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(message);
     }
 
 }

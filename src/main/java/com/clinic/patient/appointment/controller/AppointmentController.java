@@ -5,6 +5,7 @@ import com.clinic.patient.appointment.service.AppointmentService;
 import com.clinic.patient.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +24,9 @@ public class AppointmentController {
     }
 
     // Get All Appointments
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN') or @accessGuard.isSelf(#user_id)")
     @GetMapping("all/{user_id}")
-    public ResponseEntity<?> getAllAppointments(@PathVariable("user_id") long user_id ,
+    public ResponseEntity<?> getAllAppointments(@PathVariable("user_id") String user_id ,
                                                 @RequestParam(value="size" , defaultValue = "5") int size,
                                                 @RequestParam(value="page" , defaultValue = "0") int page,
                                                 @RequestParam(value = "sortBy" , defaultValue = "appointmentTime") String sort) {
@@ -32,6 +34,15 @@ public class AppointmentController {
             return appointmentService.listAllAppointmentByPatient(user_id, size, page, sort);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // Doctor's appointment queue (all, or one day with ?date=MM-dd-yyyy)
+    @PreAuthorize("hasRole('ADMIN') or @accessGuard.isSelf(#doctorId)")
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<?> getAppointmentsByDoctor(
+            @PathVariable("doctorId") String doctorId,
+            @RequestParam(value = "date", required = false) String date) {
+        return appointmentService.listAppointmentsByDoctor(doctorId, date);
     }
 
     // Update Appointment

@@ -4,8 +4,6 @@ import com.clinic.patient.patient.state.AllergyType;
 import com.clinic.patient.patient.state.Severity;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @Builder
