@@ -11,15 +11,17 @@ import com.clinic.patient.user.dto.UserRequestDTO;
 import com.clinic.patient.user.dto.UserResponseDTO;
 import com.clinic.patient.user.service.UserService;
 import com.sun.jdi.InternalException;
+import com.clinic.patient.applicationCommonFeature.authentication.service.VerificationTokenService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 import java.util.Map;
 
@@ -31,11 +33,17 @@ public class AuthController {
     private final JwtService jwtService;
     private final DoctorService doctorService;
     private final UserService userService;
+
+    private final VerificationTokenService verificationTokenService;
+
     @Autowired
-    public AuthController(JwtService jwtService ,DoctorService doctorService , UserService userService){
+    public AuthController(JwtService jwtService ,DoctorService doctorService , UserService userService,  VerificationTokenService verificationTokenService){
         this.doctorService =doctorService;
         this.jwtService = jwtService;
         this.userService = userService;
+
+        this.verificationTokenService = verificationTokenService;
+
     }
     /**
      *
@@ -75,7 +83,35 @@ public class AuthController {
        catch (Exception e) {
                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                        .body(GlobalExceptionHandler.internalError(new InternalException("Server is not accepting response try again after some time")));
-           }
+       }
+
+//       catch (Exception e) {
+//
+//           e.printStackTrace();
+//
+//           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                   .body(e.getMessage());
+//       }
+    }
+
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+
+        try {
+
+            verificationTokenService.verifyToken(token);
+
+            return ResponseEntity.ok(
+                    "Email verified successfully. You can login now."
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     /**
