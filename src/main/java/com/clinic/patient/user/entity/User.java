@@ -114,6 +114,11 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    // for email verification
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
     @Column(name="dob",columnDefinition = "Date")
     private LocalDate dob;
 
@@ -158,6 +163,14 @@ public class User {
     @Transient
     private static PasswordEncoder passwordEncoder;
 
+    // Naman wwrote: double password encoding  happen
+//    @PrePersist
+//    @PreUpdate
+//    private void encode(){
+//      if(!password.isEmpty())  password= passwordEncoder.encode(this.password);
+//      log.info("Password : {} and encoded pass {}",password,passwordEncoder);
+//
+//    }
     @PrePersist
     @PreUpdate
     private void encode(){

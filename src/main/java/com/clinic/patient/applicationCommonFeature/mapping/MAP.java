@@ -68,6 +68,8 @@ public class MAP {
           }
         }
     }
+
+    private static <T1,T2>Set<PropertyDescriptor> localDatePropertyNameGive(T1 obj1, T2 obj2){
     private static <T1,T2>Set<PropertyDescriptor> localDatePropertyNameGive(T1 obj1, T2 obj2,Set<String> st){
         BeanWrapper src2 = PropertyAccessorFactory.forBeanPropertyAccess(obj1);
         PropertyDescriptor[]  propertyDescriptors2 = src2.getPropertyDescriptors();
