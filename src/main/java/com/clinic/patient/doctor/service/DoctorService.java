@@ -71,6 +71,7 @@ public class DoctorService {
                 .specialization(profile != null ? profile.getSpecialization() : null)
                 .aboutDoctor(profile != null ? profile.getAboutDoctor() : null)
                 .degrees(profile != null ? profile.getDegrees() : null)
+                .consultationFee(profile != null ? profile.getConsultationFee() : null)
                 .build();
     }
 

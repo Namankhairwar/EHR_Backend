@@ -22,4 +22,5 @@ public class DoctorSummaryDTO {
     private String specialization;
     private String aboutDoctor;
     private List<String> degrees;
+    private Integer consultationFee;
 }

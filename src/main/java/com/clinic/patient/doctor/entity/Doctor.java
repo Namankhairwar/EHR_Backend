@@ -55,6 +55,9 @@ public class Doctor {
         @Convert(converter = StringConvert.class)
         @Column(columnDefinition = "TEXT")
         private List<String> degrees;
+
+        // Consultation fee shown to patients when booking (display only).
+        private Integer consultationFee;
     }
 
     @Embedded
