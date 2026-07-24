@@ -16,10 +16,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
 
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("https://ehr-frontend-new.vercel.app", "http://localhost:5173");
+                .setAllowedOrigins(allowedOrigins);
     }
 
     @Override

@@ -53,11 +53,14 @@ public class SecurityConfig {
     }
 
 
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("https://ehr-frontend-new.vercel.app", "http://localhost:5173"));
+        config.setAllowedOrigins(allowedOrigins);
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
